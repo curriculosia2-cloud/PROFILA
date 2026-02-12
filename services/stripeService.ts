@@ -6,27 +6,22 @@ export const stripeService = {
    * Obtém a base URL correta mesmo em ambientes de iframe/preview.
    */
   getOrigin() {
-    // Em SPAs com HashRouter, pegamos a parte antes do '#' para garantir que as URLs de retorno funcionem
-    return window.location.href.split('#')[0].replace(/\/$/, '');
+    return window.location.origin;
   },
 
   /**
    * Cria uma sessão de checkout do Stripe e abre em nova aba.
    */
   async createCheckoutSession(priceId: string) {
-    // Tenta pegar a sessão ativa
     const { data: { session } } = await supabase.auth.getSession();
     
-    // Se não houver sessão no cache, tenta validar o usuário diretamente (mais lento, mas mais preciso)
     if (!session) {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) {
-        throw new Error("Sua sessão expirou ou você não está logado. Por favor, entre na sua conta novamente.");
-      }
+      throw new Error("Sua sessão expirou. Por favor, faça login novamente.");
     }
 
+    console.log(`Iniciando checkout para o Price ID: ${priceId}`);
+
     // Chamada para a Supabase Edge Function
-    // O Supabase SDK adiciona automaticamente o header de autorização se houver uma sessão
     const { data, error } = await supabase.functions.invoke('create-checkout-session', {
       body: { 
         priceId,
@@ -35,12 +30,16 @@ export const stripeService = {
     });
 
     if (error) {
-      console.error("Erro na Edge Function:", error);
-      throw new Error("Erro ao processar sua requisição de pagamento. Verifique se os IDs de preço do Stripe estão configurados.");
+      console.error("Erro detalhado da Edge Function:", error);
+      // O erro 'Failed to send a request' geralmente significa que a URL da função está errada ou a rede está bloqueada
+      throw new Error(`Erro de conexão com o servidor de pagamentos: ${error.message || 'Verifique sua conexão e as chaves do Supabase.'}`);
+    }
+
+    if (data?.error) {
+      throw new Error(`Stripe Error: ${data.error}`);
     }
 
     if (data?.url) {
-      // Abre em nova aba para evitar restrições de iFrame (X-Frame-Options) do Stripe no preview
       window.open(data.url, "_blank");
     } else {
       throw new Error("Não foi possível gerar o link de pagamento.");
@@ -51,19 +50,17 @@ export const stripeService = {
    * Abre o portal de gerenciamento de assinatura do Stripe em nova aba.
    */
   async createPortalSession() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Usuário não autenticado");
-    }
-
     const { data, error } = await supabase.functions.invoke('create-portal-session', {
       body: { 
         origin: this.getOrigin() + '/#/dashboard'
       }
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error("Erro ao abrir portal:", error);
+      throw new Error("Não foi possível abrir o portal de gerenciamento.");
+    }
+
     if (data?.url) {
       window.open(data.url, "_blank");
     }

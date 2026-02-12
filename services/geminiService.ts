@@ -2,7 +2,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ResumeData, Experience } from "../types";
 
-// Inicialização da API seguindo as diretrizes de segurança e variáveis de ambiente.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 /**
@@ -58,10 +57,7 @@ export const polishResumeWithAI = async (data: ResumeData): Promise<ResumeData> 
       }
     });
 
-    if (!response.text) {
-      throw new Error("Resposta vazia da IA");
-    }
-
+    if (!response.text) throw new Error("Resposta vazia da IA");
     const polishedData = JSON.parse(response.text);
     
     return {
@@ -75,40 +71,58 @@ export const polishResumeWithAI = async (data: ResumeData): Promise<ResumeData> 
     };
   } catch (error: any) {
     console.error("Erro ao processar com IA:", error);
-    
-    // Fallback: Se a conexão for recusada ou falhar, retornamos os dados originais
-    // para não quebrar a experiência do usuário.
-    if (error.message?.includes('fetch') || error.name === 'TypeError') {
-      alert("Não foi possível conectar ao motor de IA. Isso pode ser um bloqueio regional, de rede ou a API Key não foi configurada no ambiente.");
-    }
-    
     return data;
   }
 };
 
 /**
- * Função para reescrever apenas uma descrição de experiência em tempo real.
+ * Chat de Suporte Inteligente (PROFILA Assistant)
  */
-export const improveDescriptionWithAI = async (role: string, description: string, level: string): Promise<string> => {
-  if (!description || description.trim().length < 5) return description;
-
+export const chatWithAssistant = async (message: string, history: {role: string, parts: string}[]) => {
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: `Reescreva profissionalmente para um currículo nível ${level}. 
-      Cargo: ${role}
-      Texto: "${description}"
-      Retorne APENAS o texto reescrito.`,
+      contents: [
+        ...history.map(h => ({ role: h.role, parts: [{ text: h.parts }] })),
+        { role: 'user', parts: [{ text: message }] }
+      ],
+      config: {
+        systemInstruction: `Você é a "Aya", a assistente virtual e coach de carreira do PROFILA.
+        Sua missão é ajudar os usuários a criarem currículos de elite e navegarem na plataforma.
+
+        ESTRUTURA DE RESPOSTA (OBRIGATÓRIO):
+        - Seja concisa. Use no máximo 3 parágrafos curtos por resposta.
+        - Use **negrito** para destacar palavras-chave importantes.
+        - Use listas com marcadores (•) para sugestões ou passos.
+        - Se for uma dica de currículo, explique o "porquê" brevemente.
+
+        CONHECIMENTO DO PROFILA:
+        - Planos: Free (1 currículo, marca d'água), Pro (5 currículos, templates modernos), Premium (Ilimitado, IA Avançada).
+        - Funcionalidades: IA de polimento automático, Editor em tempo real, Exportação PDF HD.
+        
+        DIRETRIZES DE PERSONA:
+        - Tom: Profissional, motivador e expert em recrutamento.
+        - Nunca peça dados sensíveis ou API Keys.
+        - Se o usuário perguntar algo fora de carreira/currículo, gentilmente traga o assunto de volta para o PROFILA.`,
+      }
     });
 
+    return response.text || "Estou processando sua dúvida. Pode repetir de outra forma?";
+  } catch (error) {
+    console.error("Chat Error:", error);
+    return "Tive um pequeno soluço técnico. Estou disponível novamente, como posso ajudar?";
+  }
+};
+
+export const improveDescriptionWithAI = async (role: string, description: string, level: string): Promise<string> => {
+  if (!description || description.trim().length < 5) return description;
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: `Reescreva profissionalmente para um currículo nível ${level}. Cargo: ${role}. Texto: "${description}"`,
+    });
     return response.text?.trim() || description;
-  } catch (error: any) {
-    console.error("Erro ao melhorar descrição:", error);
-    
-    if (error.message?.includes('fetch')) {
-      console.warn("Conexão com a IA recusada. Verifique sua região ou conexão de rede.");
-    }
-    
+  } catch (error) {
     return description;
   }
 };

@@ -175,10 +175,10 @@ const CreateResume: React.FC<CreateResumeProps> = ({ onSave, user, resumesCount,
             <div className="flex flex-col md:flex-row gap-10">
               {/* Photo Upload Area */}
               <div className="flex flex-col items-center space-y-4">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-full">Foto Profissional</label>
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest text-center w-full">Foto Profissional</label>
                 <div 
                   onClick={() => fileInputRef.current?.click()}
-                  className="group relative w-40 h-40 bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2.5rem] flex flex-col items-center justify-center cursor-pointer hover:border-brand-blue hover:bg-blue-50/50 transition-all overflow-hidden"
+                  className="group relative w-40 h-40 bg-slate-50 dark:bg-slate-900 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[2.5rem] flex flex-col items-center justify-center cursor-pointer hover:border-brand-blue hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all overflow-hidden"
                 >
                   {formData.personalInfo.photoDataUrl ? (
                     <>
@@ -189,10 +189,10 @@ const CreateResume: React.FC<CreateResumeProps> = ({ onSave, user, resumesCount,
                     </>
                   ) : (
                     <div className="text-center p-4">
-                      <div className="bg-white w-12 h-12 rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-3 text-slate-300 group-hover:text-brand-blue group-hover:scale-110 transition-all">
+                      <div className="bg-white dark:bg-slate-800 w-12 h-12 rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-3 text-slate-300 dark:text-slate-600 group-hover:text-brand-blue group-hover:scale-110 transition-all">
                         <ImageIcon size={24} />
                       </div>
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-tight group-hover:text-brand-blue">Enviar Foto</span>
+                      <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-tight group-hover:text-brand-blue">Enviar Foto</span>
                     </div>
                   )}
                 </div>
@@ -212,56 +212,56 @@ const CreateResume: React.FC<CreateResumeProps> = ({ onSave, user, resumesCount,
               </div>
 
               {/* Basic Fields */}
-              <div className="flex-1 space-y-6">
+              <div className="flex-1 space-y-6 text-brand-dark dark:text-white">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Nome Completo</label>
+                    <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Nome Completo</label>
                     <input 
                       type="text" 
                       value={formData.personalInfo.fullName}
                       onChange={(e) => updatePersonalInfo('fullName', e.target.value)}
-                      className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium"
+                      className="w-full p-4 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium text-brand-dark dark:text-white"
                       placeholder="Ex: João da Silva"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Cargo Atual / Alvo</label>
+                    <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Cargo Atual / Alvo</label>
                     <input 
                       type="text" 
                       value={formData.personalInfo.profession}
                       onChange={(e) => updatePersonalInfo('profession', e.target.value)}
-                      className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium"
+                      className="w-full p-4 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium text-brand-dark dark:text-white"
                       placeholder="Ex: Designer de Produto"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Telefone</label>
+                    <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Telefone</label>
                     <input 
                       type="text" 
                       value={formData.personalInfo.phone}
                       onChange={(e) => updatePersonalInfo('phone', e.target.value)}
-                      className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium"
+                      className="w-full p-4 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium text-brand-dark dark:text-white"
                       placeholder="(11) 99999-9999"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Email</label>
+                    <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Email</label>
                     <input 
                       type="email" 
                       value={formData.personalInfo.email}
                       onChange={(e) => updatePersonalInfo('email', e.target.value)}
-                      className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium"
+                      className="w-full p-4 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium text-brand-dark dark:text-white"
                       placeholder="joao@exemplo.com"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Localização</label>
+                  <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Localização</label>
                   <input 
                     type="text" 
                     value={formData.personalInfo.city}
                     onChange={(e) => updatePersonalInfo('city', e.target.value)}
-                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium"
+                    className="w-full p-4 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium text-brand-dark dark:text-white"
                     placeholder="Ex: São Paulo, SP"
                   />
                 </div>
@@ -269,14 +269,14 @@ const CreateResume: React.FC<CreateResumeProps> = ({ onSave, user, resumesCount,
             </div>
 
             {/* AI Summary Suggestion Area */}
-            <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100">
+            <div className="p-8 bg-slate-50 dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800">
                <div className="flex justify-between items-center mb-4">
-                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Breve Resumo (IA vai expandir isso)</label>
+                  <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Breve Resumo (IA vai expandir isso)</label>
                </div>
                <textarea 
                   value={formData.personalInfo.summary}
                   onChange={(e) => updatePersonalInfo('summary', e.target.value)}
-                  className="w-full p-4 bg-white border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium h-32"
+                  className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium h-32 text-brand-dark dark:text-white"
                   placeholder="Conte um pouco sobre suas principais ambições e pontos fortes..."
                 />
             </div>
@@ -286,45 +286,45 @@ const CreateResume: React.FC<CreateResumeProps> = ({ onSave, user, resumesCount,
         return (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-black text-brand-dark tracking-tight">Trajetória Profissional</h2>
-              <button onClick={addExperience} className="flex items-center bg-blue-50 text-brand-blue px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-100 transition-all">
+              <h2 className="text-2xl font-black text-brand-dark dark:text-white tracking-tight">Trajetória Profissional</h2>
+              <button onClick={addExperience} className="flex items-center bg-blue-50 dark:bg-blue-900/20 text-brand-blue px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all">
                 <Plus className="mr-2 h-4 w-4" /> ADICIONAR
               </button>
             </div>
             <div className="space-y-6">
               {formData.experiences.map((exp) => (
-                <div key={exp.id} className="p-8 border border-slate-100 rounded-[2.5rem] relative bg-slate-50/30 group hover:border-brand-blue/30 transition-all">
+                <div key={exp.id} className="p-8 border border-slate-100 dark:border-slate-800 rounded-[2.5rem] relative bg-slate-50/30 dark:bg-slate-900/50 group hover:border-brand-blue/30 transition-all">
                   <button 
                     onClick={() => removeExperience(exp.id)}
-                    className="absolute top-6 right-6 text-slate-300 hover:text-red-500 p-2 hover:bg-red-50 rounded-xl transition-all"
+                    className="absolute top-6 right-6 text-slate-300 dark:text-slate-600 hover:text-red-500 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
                   >
                     <Trash2 className="h-5 w-5" />
                   </button>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Empresa</label>
+                      <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Empresa</label>
                       <input 
                         type="text" value={exp.company}
                         onChange={(e) => updateExperience(exp.id, 'company', e.target.value)}
-                        className="w-full p-4 bg-white border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium"
+                        className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium text-brand-dark dark:text-white"
                         placeholder="Nome da empresa"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Cargo</label>
+                      <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Cargo</label>
                       <input 
                         type="text" value={exp.role}
                         onChange={(e) => updateExperience(exp.id, 'role', e.target.value)}
-                        className="w-full p-4 bg-white border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium"
+                        className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium text-brand-dark dark:text-white"
                         placeholder="Seu cargo"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nível</label>
+                      <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Nível</label>
                       <select 
                         value={exp.level}
                         onChange={(e) => updateExperience(exp.id, 'level', e.target.value as any)}
-                        className="w-full p-4 bg-white border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-bold text-slate-600 appearance-none"
+                        className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-bold text-slate-600 dark:text-slate-400 appearance-none"
                       >
                         <option value="iniciante">Iniciante / Junior</option>
                         <option value="intermediario">Intermediário / Pleno</option>
@@ -332,21 +332,21 @@ const CreateResume: React.FC<CreateResumeProps> = ({ onSave, user, resumesCount,
                       </select>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Período</label>
+                      <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Período</label>
                       <input 
                         type="text" value={exp.period}
                         onChange={(e) => updateExperience(exp.id, 'period', e.target.value)}
-                        className="w-full p-4 bg-white border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium"
+                        className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium text-brand-dark dark:text-white"
                         placeholder="Ex: Jan 2020 - Dez 2022"
                       />
                     </div>
                     <div className="space-y-2 col-span-2">
                       <div className="flex justify-between items-center mb-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Descrição</label>
+                        <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Descrição</label>
                         <button 
                           onClick={() => handleImproveWithAI(exp.id)}
                           disabled={refiningId === exp.id || !exp.description || exp.description.length < 5}
-                          className="flex items-center bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-100 transition-all disabled:opacity-50"
+                          className="flex items-center bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all disabled:opacity-50"
                         >
                           {refiningId === exp.id ? <Loader2 className="h-3 w-3 animate-spin mr-2" /> : <Sparkles className="h-3 w-3 mr-2" />}
                           Melhorar com IA
@@ -355,7 +355,7 @@ const CreateResume: React.FC<CreateResumeProps> = ({ onSave, user, resumesCount,
                       <textarea 
                         value={exp.description}
                         onChange={(e) => updateExperience(exp.id, 'description', e.target.value)}
-                        className="w-full p-5 bg-white border border-slate-100 rounded-[2rem] focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium h-40 resize-none"
+                        className="w-full p-5 bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-[2rem] focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium h-40 resize-none text-brand-dark dark:text-white"
                         placeholder="Descreva suas responsabilidades e conquistas..."
                       />
                     </div>
@@ -369,39 +369,39 @@ const CreateResume: React.FC<CreateResumeProps> = ({ onSave, user, resumesCount,
         return (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-black text-brand-dark tracking-tight">Formação Acadêmica</h2>
-              <button onClick={addEducation} className="flex items-center bg-blue-50 text-brand-blue px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-100 transition-all">
+              <h2 className="text-2xl font-black text-brand-dark dark:text-white tracking-tight">Formação Acadêmica</h2>
+              <button onClick={addEducation} className="flex items-center bg-blue-50 dark:bg-blue-900/20 text-brand-blue px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all">
                 <Plus className="mr-2 h-4 w-4" /> ADICIONAR
               </button>
             </div>
             <div className="space-y-6">
               {formData.education.map((edu) => (
-                <div key={edu.id} className="p-8 border border-slate-100 rounded-[2.5rem] relative bg-slate-50/30">
+                <div key={edu.id} className="p-8 border border-slate-100 dark:border-slate-800 rounded-[2.5rem] relative bg-slate-50/30 dark:bg-slate-900/50">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Curso</label>
+                      <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Curso</label>
                       <input 
                         type="text" value={edu.course}
                         onChange={(e) => updateEducation(edu.id, 'course', e.target.value)}
-                        className="w-full p-4 bg-white border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium"
+                        className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium text-brand-dark dark:text-white"
                         placeholder="Ex: Graduação em Administração"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Instituição</label>
+                      <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Instituição</label>
                       <input 
                         type="text" value={edu.institution}
                         onChange={(e) => updateEducation(edu.id, 'institution', e.target.value)}
-                        className="w-full p-4 bg-white border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium"
+                        className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium text-brand-dark dark:text-white"
                         placeholder="Nome da faculdade/escola"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ano de Conclusão</label>
+                      <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Ano de Conclusão</label>
                       <input 
                         type="text" value={edu.year}
                         onChange={(e) => updateEducation(edu.id, 'year', e.target.value)}
-                        className="w-full p-4 bg-white border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium"
+                        className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium text-brand-dark dark:text-white"
                         placeholder="Ex: 2023"
                       />
                     </div>
@@ -414,27 +414,27 @@ const CreateResume: React.FC<CreateResumeProps> = ({ onSave, user, resumesCount,
       case 4:
         return (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="text-2xl font-black text-brand-dark tracking-tight">Especialidades & Skills</h2>
+            <h2 className="text-2xl font-black text-brand-dark dark:text-white tracking-tight">Especialidades & Skills</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {formData.skills.map((skill, index) => (
                 <div key={index} className="relative group">
                   <input 
                     type="text" value={skill}
                     onChange={(e) => updateSkill(index, e.target.value)}
-                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-bold text-slate-600 uppercase text-[10px] tracking-widest"
+                    className="w-full p-4 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-bold text-slate-600 dark:text-slate-400 uppercase text-[10px] tracking-widest"
                     placeholder="Ex: JAVASCRIPT"
                   />
                 </div>
               ))}
               <button 
                 onClick={addSkill} 
-                className="p-4 border-2 border-dashed border-slate-200 rounded-2xl text-[10px] font-black text-slate-400 uppercase tracking-widest hover:border-brand-blue hover:text-brand-blue transition-all"
+                className="p-4 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest hover:border-brand-blue hover:text-brand-blue transition-all"
               >
                 + Adicionar Skill
               </button>
             </div>
             
-            <div className="mt-16 p-10 bg-[#0F172A] rounded-[3rem] text-white shadow-2xl relative overflow-hidden">
+            <div className="mt-16 p-10 bg-[#0F172A] dark:bg-slate-900 rounded-[3rem] text-white shadow-2xl relative overflow-hidden transition-colors">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-brand-blue/20 rounded-full blur-[80px] -mr-32 -mt-32"></div>
                 <div className="relative z-10">
                   <div className="flex items-center space-x-4 mb-6">
@@ -467,22 +467,22 @@ const CreateResume: React.FC<CreateResumeProps> = ({ onSave, user, resumesCount,
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-16 selection:bg-brand-blue selection:text-white">
+    <div className="max-w-5xl mx-auto px-4 py-16 selection:bg-brand-blue selection:text-white transition-colors duration-300">
       {/* Progress Stepper */}
       <div className="mb-16">
         <div className="flex justify-between items-center mb-6 px-4">
           {[1, 2, 3, 4].map((s) => (
             <div key={s} className="flex flex-col items-center">
-              <div className={`w-12 h-12 rounded-[1.25rem] flex items-center justify-center font-black transition-all duration-500 ${step >= s ? 'bg-brand-blue text-white shadow-xl shadow-blue-500/20 scale-110' : 'bg-slate-200 text-slate-400 opacity-60'}`}>
+              <div className={`w-12 h-12 rounded-[1.25rem] flex items-center justify-center font-black transition-all duration-500 ${step >= s ? 'bg-brand-blue text-white shadow-xl shadow-blue-500/20 scale-110' : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 opacity-60'}`}>
                 {s}
               </div>
-              <span className={`text-[10px] uppercase tracking-[0.2em] mt-4 font-black transition-colors ${step >= s ? 'text-brand-blue' : 'text-slate-400'}`}>
+              <span className={`text-[10px] uppercase tracking-[0.2em] mt-4 font-black transition-colors ${step >= s ? 'text-brand-blue' : 'text-slate-400 dark:text-slate-600'}`}>
                 {s === 1 ? 'BIO' : s === 2 ? 'CARREIRA' : s === 3 ? 'ACADÊMICO' : 'IA-FINISH'}
               </span>
             </div>
           ))}
         </div>
-        <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+        <div className="w-full bg-slate-100 dark:bg-slate-900 h-2 rounded-full overflow-hidden">
           <div 
             className="bg-brand-blue h-full transition-all duration-700 ease-out shadow-[0_0_15px_rgba(37,99,235,0.4)]" 
             style={{ width: `${(step / 4) * 100}%` }}
@@ -490,23 +490,23 @@ const CreateResume: React.FC<CreateResumeProps> = ({ onSave, user, resumesCount,
         </div>
       </div>
 
-      <div className="bg-white rounded-[3.5rem] p-10 md:p-16 border border-slate-200 shadow-sm min-h-[600px] flex flex-col justify-between">
+      <div className="bg-white dark:bg-slate-900 rounded-[3.5rem] p-10 md:p-16 border border-slate-200 dark:border-slate-800 shadow-sm min-h-[600px] flex flex-col justify-between transition-colors">
         <div className="flex-grow">
             {renderStep()}
         </div>
 
         {step < 4 && (
-          <div className="flex justify-between mt-16 pt-10 border-t border-slate-100">
+          <div className="flex justify-between mt-16 pt-10 border-t border-slate-100 dark:border-slate-800">
             <button 
               onClick={prevStep}
               disabled={step === 1}
-              className="flex items-center px-8 py-3 text-slate-400 font-black uppercase tracking-widest hover:text-brand-dark disabled:opacity-20 transition-all"
+              className="flex items-center px-8 py-3 text-slate-400 dark:text-slate-500 font-black uppercase tracking-widest hover:text-brand-dark dark:hover:text-white disabled:opacity-20 transition-all"
             >
               <ChevronLeft className="mr-2 h-5 w-5" /> ANTERIOR
             </button>
             <button 
               onClick={nextStep}
-              className="flex items-center px-12 py-5 bg-brand-dark text-white rounded-[1.5rem] font-black uppercase tracking-[0.15em] text-xs shadow-xl hover:bg-slate-800 hover:-translate-y-1 active:translate-y-0 transition-all"
+              className="flex items-center px-12 py-5 bg-brand-dark dark:bg-slate-800 text-white rounded-[1.5rem] font-black uppercase tracking-[0.15em] text-xs shadow-xl hover:bg-slate-800 dark:hover:bg-slate-700 hover:-translate-y-1 active:translate-y-0 transition-all"
             >
               PRÓXIMA ETAPA <ChevronRight className="ml-2 h-5 w-5" />
             </button>

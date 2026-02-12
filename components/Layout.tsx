@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { User, AppRoute } from '../types';
-import { TrendingUp, LogOut, User as UserIcon, Menu, X, Mail, Sun, Moon } from 'lucide-react';
+import { TrendingUp, LogOut, User as UserIcon, Menu, X, Mail, Sun, Moon, Target } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -57,6 +57,8 @@ const Layout: React.FC<LayoutProps> = ({ children, user, onLogout }) => {
                 className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:text-brand-blue transition-all border border-slate-200 dark:border-slate-800"
                 aria-label="Alternar tema"
               >
+                {/* Added Target to imports to fix: Cannot find name 'Target' */}
+                {isDarkMode ? <Target size={20} className="hidden" /> : null}
                 {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
               </button>
 
@@ -159,7 +161,7 @@ const Layout: React.FC<LayoutProps> = ({ children, user, onLogout }) => {
               <h4 className="text-white font-bold text-sm uppercase tracking-widest">Contato</h4>
               <div className="flex items-center space-x-3 text-sm font-medium">
                 <Mail className="h-5 w-5 text-brand-blue" />
-                <a href="mailto:suporte@profila.com" className="hover:text-white transition-colors">suporte@profila.com</a>
+                <a href="mailto:contato@profila.site" className="hover:text-white transition-colors">contato@profila.site</a>
               </div>
             </div>
           </div>

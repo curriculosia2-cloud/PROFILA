@@ -1,5 +1,4 @@
 
-// Fix: Use namespace import to correctly populate global JSX.IntrinsicElements
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
@@ -63,13 +62,8 @@ const CustomizeResume: React.FC<CustomizeResumeProps> = ({ resume, onSave, user,
     activeFilter === 'all' || t.category === activeFilter
   );
 
-  const colors = [
-    '#0F172A', '#2563EB', '#16a34a', '#dc2626', '#7c3aed', '#f59e0b'
-  ];
-
-  const fonts = [
-    'Inter', 'Georgia', 'Arial', 'Times New Roman'
-  ];
+  const colors = ['#0F172A', '#2563EB', '#16a34a', '#dc2626', '#7c3aed', '#f59e0b'];
+  const fonts = ['Inter', 'Georgia', 'Arial', 'Times New Roman'];
 
   const isTemplateLocked = (minPlan: string) => {
     const plansOrder = ['free', 'pro', 'premium'];
@@ -78,24 +72,12 @@ const CustomizeResume: React.FC<CustomizeResumeProps> = ({ resume, onSave, user,
 
   if (isGenerating) {
     return (
-      <div className="min-h-[80vh] flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-700">
-        <div className="relative mb-8">
-          <div className="absolute inset-0 bg-brand-blue rounded-full blur-2xl opacity-20 animate-pulse"></div>
-          <div className="relative bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-xl">
-             <Sparkles className="h-12 w-12 text-brand-blue animate-bounce" />
-          </div>
+      <div className="min-h-[80vh] flex flex-col items-center justify-center p-8 text-center bg-slate-50 dark:bg-slate-950 transition-colors">
+        <Sparkles className="h-12 w-12 text-brand-blue animate-bounce mb-6" />
+        <h2 className="text-3xl font-black text-brand-dark dark:text-white tracking-tighter mb-4">Polindo sua Carreira...</h2>
+        <div className="mt-8 w-48 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+          <div className="bg-brand-blue h-full animate-pulse w-1/2"></div>
         </div>
-        <h2 className="text-3xl font-black text-brand-dark tracking-tighter mb-4">Gerando seu futuro...</h2>
-        <p className="text-slate-500 max-w-xs font-medium leading-relaxed">Nossa IA está polindo cada detalhe e organizando suas conquistas com precisão cirúrgica.</p>
-        <div className="mt-8 w-48 bg-slate-100 h-1.5 rounded-full overflow-hidden">
-          <div className="bg-brand-blue h-full animate-[progress_2s_ease-in-out_infinite]"></div>
-        </div>
-        <style>{`
-          @keyframes progress {
-            0% { width: 0%; transform: translateX(-100%); }
-            100% { width: 100%; transform: translateX(100%); }
-          }
-        `}</style>
       </div>
     );
   }
@@ -105,32 +87,29 @@ const CustomizeResume: React.FC<CustomizeResumeProps> = ({ resume, onSave, user,
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         
         {/* LADO ESQUERDO: PREVIEW A4 REALISTA */}
-        <div className="w-full lg:flex-1 bg-slate-100 rounded-[3rem] p-4 md:p-12 flex justify-center items-start min-h-[900px] border border-slate-200 shadow-inner overflow-hidden">
+        <div className="w-full lg:flex-1 bg-slate-200 dark:bg-slate-800 rounded-[3rem] p-4 md:p-12 flex justify-center items-start min-h-[900px] shadow-inner overflow-hidden transition-colors">
           <div 
             id="resume-preview-container"
-            className="bg-white shadow-2xl w-full max-w-[210mm] min-h-[297mm] transition-all relative overflow-hidden origin-top scale-100"
+            className="bg-white shadow-2xl w-full max-w-[210mm] min-h-[297mm] transition-all relative overflow-hidden"
             style={{ 
               fontFamily: localData.customization.fontFamily,
               lineHeight: localData.customization.lineSpacing
             }}
           >
-            {/* MARCA D'ÁGUA PLANO FREE */}
             {planDetails.hasWatermark && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
-                <div className="rotate-[-35deg] text-brand-dark opacity-[0.06] font-black text-7xl tracking-[0.2em] whitespace-nowrap">
+                <div className="rotate-[-35deg] text-brand-dark opacity-[0.05] font-black text-7xl tracking-[0.2em] whitespace-nowrap">
                   CRIADO COM PROFILA
                 </div>
               </div>
             )}
-
             <TemplateRenderer data={localData} />
           </div>
         </div>
 
         {/* LADO DIREITO: PAINEL DE AÇÕES E CUSTOMIZAÇÃO */}
         <div className="w-full lg:w-[450px] space-y-6">
-          
-          <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm space-y-4">
+          <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm space-y-4 transition-colors">
             <button 
               onClick={() => {
                 onSave(localData);
@@ -138,12 +117,12 @@ const CustomizeResume: React.FC<CustomizeResumeProps> = ({ resume, onSave, user,
               }}
               className="w-full bg-brand-blue text-white py-5 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center hover:bg-blue-600 transition-all shadow-xl shadow-blue-500/20 active:scale-95 group"
             >
-              <Download className="mr-3 h-5 w-5 group-hover:translate-y-0.5 transition-transform" /> BAIXAR PDF
+              <Download className="mr-3 h-5 w-5" /> BAIXAR PDF
             </button>
             <div className="grid grid-cols-2 gap-3">
               <button 
                 onClick={() => navigate(AppRoute.CREATE)}
-                className="bg-slate-50 text-slate-600 py-4 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center border border-slate-100 hover:bg-white transition-all"
+                className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 py-4 rounded-xl font-bold text-xs uppercase tracking-widest border border-slate-100 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-750 transition-all"
               >
                 <Edit3 className="mr-2 h-4 w-4" /> Editar
               </button>
@@ -152,81 +131,47 @@ const CustomizeResume: React.FC<CustomizeResumeProps> = ({ resume, onSave, user,
                    onSave(localData);
                    alert("Currículo salvo com sucesso!");
                 }}
-                className="bg-slate-50 text-slate-600 py-4 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center border border-slate-100 hover:bg-white transition-all"
+                className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 py-4 rounded-xl font-bold text-xs uppercase tracking-widest border border-slate-100 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-750 transition-all"
               >
                 <Save className="mr-2 h-4 w-4" /> Salvar
               </button>
             </div>
           </div>
 
-          <div className="bg-white p-8 rounded-[3rem] border border-slate-200 shadow-sm space-y-10">
+          <div className="bg-white dark:bg-slate-900 p-8 rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-sm space-y-10 transition-colors">
             
-            {/* Miniatura de Perfil Lateral */}
-            <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center space-x-6">
-              <div className="relative">
-                <div className={`w-20 h-20 bg-white shadow-md overflow-hidden flex items-center justify-center transition-all ${localData.personalInfo.photoShape === 'circle' ? 'rounded-full' : localData.personalInfo.photoShape === 'rounded' ? 'rounded-2xl' : 'rounded-none'}`}>
-                  {localData.personalInfo.photoDataUrl ? (
-                    <img src={localData.personalInfo.photoDataUrl} className={`w-full h-full object-cover transition-all ${!localData.customization.showPhoto ? 'grayscale opacity-30 scale-95' : ''}`} alt="Miniatura" />
-                  ) : (
-                    <UserIcon className="text-slate-200 h-10 w-10" />
-                  )}
-                  {!localData.customization.showPhoto && localData.personalInfo.photoDataUrl && (
-                    <div className="absolute inset-0 flex items-center justify-center text-slate-400">
-                      <EyeOff size={20} />
-                    </div>
-                  )}
-                </div>
-                <div className="absolute -bottom-1 -right-1 bg-white p-1.5 rounded-full shadow-sm border border-slate-100">
-                   <Camera size={12} className="text-brand-blue" />
-                </div>
-              </div>
-              <div className="flex-1">
-                <h5 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Visualização de Perfil</h5>
-                <p className="text-xs font-bold text-brand-dark truncate">{localData.personalInfo.fullName || 'Usuário Profila'}</p>
-                <span className={`text-[9px] font-black uppercase tracking-widest ${localData.customization.showPhoto ? 'text-green-500' : 'text-slate-400'}`}>
-                  {localData.customization.showPhoto ? 'Ativada no Currículo' : 'Oculta no Currículo'}
-                </span>
-              </div>
-            </div>
-
-            {/* Seletor de Modelo Avançado */}
+            {/* Seletor de Modelo */}
             <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 flex items-center">
-                  <LayoutIcon className="mr-2 h-3 w-3" /> Biblioteca de Modelos
-                </h4>
-              </div>
-
-              {/* Filtros */}
+              <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Biblioteca de Modelos</h4>
               <div className="flex flex-wrap gap-2">
                 {['all', 'free', 'pro', 'premium', 'ats'].map(f => (
                   <button 
                     key={f}
                     onClick={() => setActiveFilter(f as any)}
-                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${activeFilter === f ? 'bg-brand-blue text-white' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
+                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${activeFilter === f ? 'bg-brand-blue text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500'}`}
                   >
                     {f === 'all' ? 'Todos' : f}
                   </button>
                 ))}
               </div>
 
-              <div className="grid grid-cols-2 gap-3 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
+              <div className="grid grid-cols-2 gap-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                 {filteredTemplates.map(t => {
                   const locked = isTemplateLocked(t.minPlan);
                   return (
                     <button 
                       key={t.id}
                       onClick={() => locked ? navigate(AppRoute.PLANS) : handleUpdate({ template: t.id as any })}
-                      className={`relative aspect-[3/4] rounded-2xl border-2 transition-all p-4 flex flex-col items-center justify-center text-center group ${localData.customization.template === t.id ? 'border-brand-blue bg-blue-50/20' : 'border-slate-100 hover:border-slate-200 bg-white'}`}
+                      className={`relative aspect-[3/4] rounded-2xl border-2 transition-all p-4 flex flex-col items-center justify-center text-center group ${localData.customization.template === t.id ? 'border-brand-blue bg-blue-50/20 dark:bg-brand-blue/10' : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900'}`}
                     >
-                      <div className={`mb-3 p-3 rounded-xl ${localData.customization.template === t.id ? 'bg-brand-blue text-white' : 'bg-slate-50 text-slate-400 group-hover:bg-slate-100'}`}>
+                      <div className={`mb-3 p-3 rounded-xl ${localData.customization.template === t.id ? 'bg-brand-blue text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 group-hover:bg-slate-100'}`}>
                         {t.icon}
                       </div>
-                      <span className={`text-[10px] font-black uppercase tracking-widest ${localData.customization.template === t.id ? 'text-brand-blue' : 'text-slate-600'}`}>
+                      <span className={`text-[10px] font-black uppercase tracking-widest ${localData.customization.template === t.id ? 'text-brand-blue' : 'text-slate-600 dark:text-slate-400'}`}>
                         {t.name}
                       </span>
                       {locked && (
-                        <div className="absolute top-2 right-2 p-1.5 bg-slate-900/5 backdrop-blur-sm rounded-lg">
+                        <div className="absolute top-2 right-2 p-1.5 bg-slate-900/5 dark:bg-white/5 rounded-lg">
                           <Lock size={10} className="text-slate-400" />
                         </div>
                       )}
@@ -236,20 +181,15 @@ const CustomizeResume: React.FC<CustomizeResumeProps> = ({ resume, onSave, user,
               </div>
             </div>
 
-            {/* Cores */}
+            {/* Estilo Visual */}
             <div className="space-y-4">
-               <div className="flex justify-between items-center">
-                <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 flex items-center">
-                  <Palette className="mr-2 h-3 w-3" /> Paleta de Marca
-                </h4>
-                {user.plan === 'free' && <Lock className="h-3 w-3 text-slate-300" />}
-              </div>
+              <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Estilo Visual</h4>
               <div className={`flex flex-wrap gap-4 ${user.plan === 'free' ? 'opacity-30 pointer-events-none' : ''}`}>
                 {colors.map(c => (
                   <button 
                     key={c}
                     onClick={() => handleUpdate({ primaryColor: c })}
-                    className={`w-10 h-10 rounded-2xl border-2 flex items-center justify-center transition-all ${localData.customization.primaryColor === c ? 'border-brand-blue scale-110 shadow-lg' : 'border-transparent hover:scale-105'}`}
+                    className={`w-10 h-10 rounded-2xl border-2 transition-all ${localData.customization.primaryColor === c ? 'border-brand-blue scale-110 shadow-lg' : 'border-transparent hover:scale-105'}`}
                     style={{ backgroundColor: c }}
                   >
                     {localData.customization.primaryColor === c && <Check className="h-4 w-4 text-white" />}
@@ -257,81 +197,17 @@ const CustomizeResume: React.FC<CustomizeResumeProps> = ({ resume, onSave, user,
                 ))}
               </div>
             </div>
-
-            {/* Espaçamento (Premium Only) */}
-            <div className="space-y-6">
-               <div className="flex justify-between items-center">
-                <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 flex items-center">
-                  <MoveVertical className="mr-2 h-3 w-3" /> Tipografia e Layout
-                </h4>
-                {user.plan !== 'premium' && <Lock className="h-3 w-3 text-slate-300" />}
-              </div>
-              
-              <div className={`space-y-6 ${user.plan !== 'premium' ? 'opacity-30 pointer-events-none' : ''}`}>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Linhas</label>
-                    <input 
-                      type="range" min="1" max="2" step="0.1"
-                      value={localData.customization.lineSpacing}
-                      onChange={(e) => handleUpdate({ lineSpacing: parseFloat(e.target.value) })}
-                      className="w-full accent-brand-blue"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Seções</label>
-                    <input 
-                      type="range" min="10" max="60" step="2"
-                      value={localData.customization.sectionSpacing}
-                      onChange={(e) => handleUpdate({ sectionSpacing: parseInt(e.target.value) })}
-                      className="w-full accent-brand-blue"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Fonte do Documento</label>
-                  <select 
-                      value={localData.customization.fontFamily}
-                      onChange={(e) => handleUpdate({ fontFamily: e.target.value })}
-                      className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-slate-600 outline-none"
-                  >
-                    {fonts.map(f => <option key={f} value={f}>{f}</option>)}
-                  </select>
-                </div>
-              </div>
-            </div>
             
-            {/* Foto Toggle */}
-            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
-               <div className="flex items-center">
-                 <Camera className="h-4 w-4 mr-3 text-slate-400" />
-                 <span className="text-xs font-black uppercase tracking-widest text-slate-600">Exibir Foto de Perfil</span>
-               </div>
+            <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
+               <span className="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Exibir Foto de Perfil</span>
                <button 
                 onClick={() => handleUpdate({ showPhoto: !localData.customization.showPhoto })}
-                className={`w-12 h-6 rounded-full transition-all relative ${localData.customization.showPhoto ? 'bg-brand-blue' : 'bg-slate-300'}`}
+                className={`w-12 h-6 rounded-full transition-all relative ${localData.customization.showPhoto ? 'bg-brand-blue' : 'bg-slate-300 dark:bg-slate-700'}`}
                >
                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${localData.customization.showPhoto ? 'right-1' : 'left-1'}`}></div>
                </button>
             </div>
-
           </div>
-
-          {planDetails.hasWatermark && (
-             <div className="bg-[#0F172A] p-8 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
-                  <Crown size={80} />
-                </div>
-                <h5 className="text-lg font-black mb-2 tracking-tight">Desbloquear Premium</h5>
-                <p className="text-xs text-slate-400 font-medium mb-6 leading-relaxed">Acesso total a todos os 12 templates e remoção automática da marca d'água.</p>
-                <Link 
-                  to={AppRoute.PLANS}
-                  className="w-full py-4 bg-brand-blue text-white rounded-xl font-black text-center text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/20 block"
-                >
-                   VER PLANOS
-                </Link>
-             </div>
-          )}
         </div>
       </div>
     </div>

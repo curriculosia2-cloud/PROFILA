@@ -45,11 +45,6 @@ const Landing: React.FC = () => {
             </Link>
           </div>
           
-          <div className="mt-8 text-slate-500 text-sm font-bold uppercase tracking-widest flex items-center justify-center space-x-4">
-            <span className="flex items-center"><CheckCircle className="h-4 w-4 mr-1 text-green-500" /> Sem cartão de crédito</span>
-            <span className="flex items-center"><CheckCircle className="h-4 w-4 mr-1 text-green-500" /> Teste grátis</span>
-          </div>
-          
           <div className="mt-24 relative max-w-5xl mx-auto">
             <div className="absolute -inset-1 bg-gradient-to-r from-brand-blue to-blue-400 rounded-[2.5rem] blur opacity-30"></div>
             <div className="relative bg-slate-800 rounded-[2.5rem] border border-white/10 shadow-2xl p-4">

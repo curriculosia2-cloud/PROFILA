@@ -9,7 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
       // Previne flash de cor branca antes do React carregar
-      if (localStorage.getItem('profila-theme') === 'dark' || (!('profila-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      const theme = localStorage.getItem('profila-theme');
+      if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         document.documentElement.classList.add('dark');
       } else {
         document.documentElement.classList.remove('dark');
@@ -36,29 +37,20 @@
     <style>
       body {
         font-family: 'Inter', sans-serif;
-        transition: background-color 0.3s ease, color 0.3s ease;
+        transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       }
       .dark body {
         background-color: #020617;
         color: #F8FAFC;
       }
       .glass {
-        background: rgba(255, 255, 255, 0.8);
+        background: rgba(255, 255, 255, 0.7);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
       }
       .dark .glass {
         background: rgba(15, 23, 42, 0.8);
         border-color: rgba(30, 41, 59, 0.5);
-      }
-      .btn-primary {
-        background-color: #2563EB;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-      .btn-primary:hover {
-        background-color: #1D4ED8;
-        transform: translateY(-1px);
-        box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
       }
       ::-webkit-scrollbar {
         width: 8px;
@@ -67,17 +59,14 @@
         background: #F1F5F9;
       }
       .dark ::-webkit-scrollbar-track {
-        background: #0F172A;
+        background: #020617;
       }
       ::-webkit-scrollbar-thumb {
         background: #CBD5E1;
         border-radius: 4px;
       }
       .dark ::-webkit-scrollbar-thumb {
-        background: #334155;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #94A3B8;
+        background: #1e293b;
       }
     </style>
   <script type="importmap">
@@ -94,7 +83,7 @@
 }
 </script>
 </head>
-  <body class="bg-brand-light dark:bg-slate-950 text-brand-dark dark:text-slate-100">
+  <body class="bg-brand-light dark:bg-slate-950 text-brand-dark dark:text-slate-100 min-h-screen">
     <div id="root"></div>
   </body>
 </html>

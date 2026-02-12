@@ -1,3 +1,4 @@
+
 // Fix: Use namespace import to correctly populate global JSX.IntrinsicElements
 import * as React from 'react';
 import { useState, useEffect } from 'react';
@@ -16,6 +17,7 @@ import ExportResume from './pages/ExportResume';
 import PlansPage from './pages/PlansPage';
 import BillingSuccess from './pages/BillingSuccess';
 import PlanModal from './components/PlanModal';
+import AIAssistant from './components/AIAssistant';
 // Added PLANS to the import list from types.ts to resolve the reference error on line 131
 import { User, ResumeData, AppRoute, PlanType, SubscriptionStatus, PLANS } from './types';
 import { supabase, supabaseService } from './services/supabase';
@@ -138,7 +140,7 @@ const App: React.FC = () => {
   };
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
       <div className="flex flex-col items-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-blue mb-4"></div>
         <span className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.2em]">Sincronizando PROFILA...</span>
@@ -171,6 +173,8 @@ const App: React.FC = () => {
           currentPlan={user?.plan || 'free'}
           onUpgrade={handleUpgrade}
         />
+        
+        <AIAssistant />
       </Layout>
     </Router>
   );
