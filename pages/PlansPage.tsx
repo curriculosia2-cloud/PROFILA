@@ -3,28 +3,47 @@ import * as React from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Crown, Zap, Star, ArrowLeft, Loader2 } from 'lucide-react';
-import { PlanType, PLANS, AppRoute } from '../types';
+import { PlanType, PLANS, AppRoute, User } from '../types';
 import { stripeService } from '../services/stripeService';
 
 interface PlansPageProps {
-  currentPlan: PlanType;
-  subscriptionStatus: string;
+  user: User | null;
 }
 
-const PlansPage: React.FC<PlansPageProps> = ({ currentPlan, subscriptionStatus }) => {
+const PlansPage: React.FC<PlansPageProps> = ({ user }) => {
   const navigate = useNavigate();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+
+  const currentPlan = user?.plan || 'free';
+  const subscriptionStatus = user?.subscriptionStatus || 'inactive';
 
   const handleSubscribe = async (planId: PlanType) => {
     if (planId === 'free') return;
     
+    // Se o usuário não estiver logado, redireciona para o login
+    if (!user) {
+      navigate(AppRoute.LOGIN);
+      return;
+    }
+
     setLoadingPlan(planId);
     try {
       const plan = PLANS[planId];
+      
+      // Permitimos Price IDs que contenham "PLACEHOLDER" apenas para não bloquear o clique,
+      // mas alertamos o desenvolvedor no console.
+      if (!plan.priceId || plan.priceId === '') {
+        throw new Error("ID de preço não configurado para este plano.");
+      }
+
+      if (plan.priceId.includes('PLACEHOLDER')) {
+        console.warn(`Aviso: Tentando usar um Price ID de placeholder (${plan.priceId}). Isso falhará se a Edge Function não tratar mocks.`);
+      }
+
       await stripeService.createCheckoutSession(plan.priceId);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Erro ao iniciar checkout:", err);
-      alert("Erro ao processar pagamento. Tente novamente mais tarde.");
+      alert(err.message || "Erro inesperado ao processar pagamento.");
     } finally {
       setLoadingPlan(null);
     }
@@ -140,6 +159,8 @@ const PlansPage: React.FC<PlansPageProps> = ({ currentPlan, subscriptionStatus }
                   <Loader2 className="animate-spin h-5 w-5" />
                 ) : isCurrent ? (
                   'Plano Ativo'
+                ) : !user ? (
+                  'Entrar para Assinar'
                 ) : planId === 'free' ? (
                   'Plano Grátis'
                 ) : (

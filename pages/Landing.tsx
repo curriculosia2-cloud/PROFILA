@@ -7,7 +7,7 @@ import { AppRoute } from '../types';
 
 const Landing: React.FC = () => {
   return (
-    <div className="overflow-hidden bg-white">
+    <div className="overflow-hidden bg-white dark:bg-slate-950 transition-colors duration-300">
       {/* Hero Section */}
       <section className="relative pt-32 pb-40 bg-[#0F172A] selection:bg-brand-blue selection:text-white">
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-20 pointer-events-none">
@@ -64,11 +64,11 @@ const Landing: React.FC = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-32 bg-white">
+      <section className="py-32 bg-white dark:bg-slate-950 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-24">
-            <h2 className="text-4xl md:text-5xl font-black text-brand-dark mb-6 tracking-tight">Não apenas um documento, <br/><span className="text-brand-blue">sua melhor versão.</span></h2>
-            <p className="text-lg text-slate-500 font-medium leading-relaxed">
+            <h2 className="text-4xl md:text-5xl font-black text-brand-dark dark:text-white mb-6 tracking-tight">Não apenas um documento, <br/><span className="text-brand-blue">sua melhor versão.</span></h2>
+            <p className="text-lg text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
               Recrutadores gastam apenas 6 segundos em cada currículo. Com o PROFILA, você garante que esses 6 segundos se transformem em uma entrevista.
             </p>
           </div>
@@ -91,10 +91,10 @@ const Landing: React.FC = () => {
                 icon: <Trophy className="h-10 w-10 text-brand-blue" />
               }
             ].map((item, i) => (
-              <div key={i} className="text-center">
-                <div className="mb-6 p-5 bg-slate-50 rounded-3xl inline-block">{item.icon}</div>
-                <h3 className="text-2xl font-black text-brand-dark mb-4">{item.title}</h3>
-                <p className="text-slate-500 font-medium leading-relaxed">{item.desc}</p>
+              <div key={i} className="text-center group">
+                <div className="mb-6 p-5 bg-slate-50 dark:bg-slate-900 rounded-3xl inline-block group-hover:bg-brand-blue/10 transition-colors">{item.icon}</div>
+                <h3 className="text-2xl font-black text-brand-dark dark:text-white mb-4">{item.title}</h3>
+                <p className="text-slate-500 dark:text-slate-400 font-medium leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -102,7 +102,7 @@ const Landing: React.FC = () => {
       </section>
 
       {/* Pricing Teaser */}
-      <section id="pricing" className="py-32 bg-brand-dark text-white">
+      <section id="pricing" className="py-32 bg-brand-dark dark:bg-[#020617] text-white">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h2 className="text-4xl md:text-6xl font-black mb-8 tracking-tighter">Preços para quem <br/> <span className="text-brand-blue">pensa grande.</span></h2>
           <p className="text-slate-400 mb-16 max-w-xl mx-auto text-lg">Escolha o plano que melhor se adapta ao seu momento profissional.</p>

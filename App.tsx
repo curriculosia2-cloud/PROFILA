@@ -1,4 +1,3 @@
-
 // Fix: Use namespace import to correctly populate global JSX.IntrinsicElements
 import * as React from 'react';
 import { useState, useEffect } from 'react';
@@ -17,7 +16,8 @@ import ExportResume from './pages/ExportResume';
 import PlansPage from './pages/PlansPage';
 import BillingSuccess from './pages/BillingSuccess';
 import PlanModal from './components/PlanModal';
-import { User, ResumeData, AppRoute, PlanType, SubscriptionStatus } from './types';
+// Added PLANS to the import list from types.ts to resolve the reference error on line 131
+import { User, ResumeData, AppRoute, PlanType, SubscriptionStatus, PLANS } from './types';
 import { supabase, supabaseService } from './services/supabase';
 import { stripeService } from './services/stripeService';
 
@@ -35,24 +35,43 @@ const App: React.FC = () => {
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
 
   useEffect(() => {
+    // Monitorar o estado de autenticação de forma resiliente
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setLoading(true);
+      
       if (session?.user) {
         const isEmailConfirmed = !!session.user.email_confirmed_at;
         
         if (isEmailConfirmed) {
-          const profile = await supabaseService.getProfile(session.user.id);
-          const subData = await stripeService.getSubscription(session.user.id);
+          try {
+            // Tenta buscar dados adicionais, mas não trava se falhar
+            const [profile, subData] = await Promise.all([
+              supabaseService.getProfile(session.user.id).catch(() => null),
+              stripeService.getSubscription(session.user.id).catch(() => null)
+            ]);
 
-          const userData: User = {
-            id: session.user.id,
-            email: session.user.email!,
-            name: profile?.name || session.user.email!.split('@')[0],
-            plan: subData?.plan || 'free',
-            subscriptionStatus: subData?.status || 'inactive',
-            emailConfirmed: true
-          };
-          setUser(userData);
-          loadUserResumes(session.user.id);
+            setUser({
+              id: session.user.id,
+              email: session.user.email!,
+              name: profile?.name || session.user.email!.split('@')[0],
+              plan: subData?.plan || 'free',
+              subscriptionStatus: subData?.status || 'inactive',
+              emailConfirmed: true
+            });
+            
+            await loadUserResumes(session.user.id);
+          } catch (err) {
+            console.error("Erro ao carregar dados do usuário:", err);
+            // Fallback para usuário básico se o banco falhar
+            setUser({
+              id: session.user.id,
+              email: session.user.email!,
+              name: session.user.email!.split('@')[0],
+              plan: 'free',
+              subscriptionStatus: 'inactive',
+              emailConfirmed: true
+            });
+          }
         } else {
           setUser({
             id: session.user.id,
@@ -84,9 +103,11 @@ const App: React.FC = () => {
   };
 
   const handleLogout = async () => {
+    setLoading(true);
     await supabase.auth.signOut();
     setUser(null);
     setResumes([]);
+    setLoading(false);
   };
 
   const handleSaveResume = async (resume: ResumeData) => {
@@ -105,12 +126,14 @@ const App: React.FC = () => {
   };
 
   const handleUpgrade = async (plan: PlanType) => {
-    // No modo real, redirecionamos para o Stripe, mas mantemos o callback para mock/local
     if (!user || !user.emailConfirmed) return;
     try {
-      await stripeService.createCheckoutSession(plan === 'pro' ? 'price_PRO_PLACEHOLDER' : 'price_PREMIUM_PLACEHOLDER');
+      // Fix: Now uses PLANS imported from types.ts
+      const planDetails = PLANS[plan];
+      await stripeService.createCheckoutSession(planDetails.priceId);
     } catch (err) {
       console.error("Erro no upgrade:", err);
+      alert("Erro ao iniciar processo de pagamento.");
     }
   };
 
@@ -118,7 +141,7 @@ const App: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
       <div className="flex flex-col items-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-blue mb-4"></div>
-        <span className="text-slate-400 font-bold text-xs uppercase tracking-widest">Iniciando PROFILA...</span>
+        <span className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.2em]">Sincronizando PROFILA...</span>
       </div>
     </div>
   );
@@ -138,7 +161,7 @@ const App: React.FC = () => {
           <Route path={AppRoute.CREATE} element={<PrivateRoute user={user}><CreateResume onSave={handleSaveResume} user={user!} resumesCount={resumes.length} onOpenPlans={() => setIsPlanModalOpen(true)} /></PrivateRoute>} />
           <Route path={AppRoute.CUSTOMIZE} element={<PrivateRoute user={user}>{currentResume ? <CustomizeResume resume={currentResume} onSave={handleSaveResume} user={user!} onOpenPlans={() => setIsPlanModalOpen(true)} /> : <Navigate to={AppRoute.DASHBOARD} />}</PrivateRoute>} />
           <Route path={AppRoute.EXPORT} element={<PrivateRoute user={user}>{currentResume ? <ExportResume resume={currentResume} user={user!} /> : <Navigate to={AppRoute.DASHBOARD} />}</PrivateRoute>} />
-          <Route path={AppRoute.PLANS} element={<PlansPage currentPlan={user?.plan || 'free'} subscriptionStatus={user?.subscriptionStatus || 'inactive'} />} />
+          <Route path={AppRoute.PLANS} element={<PlansPage user={user} />} />
           <Route path={AppRoute.BILLING_SUCCESS} element={<BillingSuccess />} />
         </Routes>
 

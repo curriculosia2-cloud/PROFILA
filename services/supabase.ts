@@ -2,6 +2,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { ResumeData, User, PlanType } from '../types';
 
+// Credenciais fornecidas pelo usuário
 const SUPABASE_URL = 'https://rglluccyiptoyvskjrvj.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_kJL-fSkf_5hwPCSRZL2GNQ_wotHWoGO';
 
@@ -13,24 +14,28 @@ const isUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][
 export const supabaseService = {
   // Resumes
   async getResumes(userId: string): Promise<ResumeData[]> {
-    const { data, error } = await supabase
-      .from('resumes')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('resumes')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
 
-    if (error) throw error;
-    return (data || []).map(r => ({
-      ...r.content,
-      id: r.id,
-      createdAt: new Date(r.created_at).getTime()
-    }));
+      if (error) throw error;
+      return (data || []).map(r => ({
+        ...r.content,
+        id: r.id,
+        createdAt: new Date(r.created_at).getTime()
+      }));
+    } catch (err) {
+      console.warn("Erro ao buscar currículos (verifique se a tabela 'resumes' existe no Supabase):", err);
+      return [];
+    }
   },
 
   async saveResume(userId: string, resume: ResumeData) {
     const { id, ...content } = resume;
     
-    // Se o ID não for um UUID válido, deixamos o Supabase gerar um novo no insert
     const payload = {
       user_id: userId,
       title: resume.title || resume.personalInfo.profession || 'Novo Currículo',
@@ -38,6 +43,7 @@ export const supabaseService = {
       updated_at: new Date().toISOString()
     };
 
+    // Se o ID não for um UUID válido (ex: gerado no frontend com math.random), deixamos o Supabase gerar um novo
     const { data, error } = await supabase
       .from('resumes')
       .upsert(isUUID(id) ? { id, ...payload } : payload)
@@ -59,14 +65,18 @@ export const supabaseService = {
 
   // Profile / Plan
   async getProfile(userId: string): Promise<{ name: string, plan: PlanType } | null> {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('name, plan')
-      .eq('id', userId)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('name, plan')
+        .eq('id', userId)
+        .single();
 
-    if (error && error.code !== 'PGRST116') return null;
-    return data;
+      if (error) return null;
+      return data;
+    } catch (err) {
+      return null;
+    }
   },
 
   async updateProfile(userId: string, updates: { name?: string, plan?: PlanType }) {

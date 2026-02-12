@@ -61,16 +61,16 @@ const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, 
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-16 selection:bg-brand-blue selection:text-white">
+    <div className="max-w-7xl mx-auto px-4 py-16 selection:bg-brand-blue selection:text-white transition-colors duration-300">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
         <div>
-          <h1 className="text-4xl font-black text-brand-dark tracking-tight mb-3">Bem-vindo, {user.name.split(' ')[0]}!</h1>
-          <p className="text-lg text-slate-500 font-medium">Você tem {resumes.length} {resumes.length === 1 ? 'currículo criado' : 'currículos criados'}.</p>
+          <h1 className="text-4xl font-black text-brand-dark dark:text-white tracking-tight mb-3">Bem-vindo, {user.name.split(' ')[0]}!</h1>
+          <p className="text-lg text-slate-500 dark:text-slate-400 font-medium">Você tem {resumes.length} {resumes.length === 1 ? 'currículo criado' : 'currículos criados'}.</p>
         </div>
         <Link 
           to={isLimitReached ? "#" : AppRoute.CREATE}
           onClick={handleCreateNew}
-          className={`px-10 py-5 rounded-2xl font-black text-lg flex items-center justify-center transition-all shadow-xl ${isLimitReached ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none' : 'bg-brand-blue text-white hover:bg-blue-700 shadow-blue-500/20'}`}
+          className={`px-10 py-5 rounded-2xl font-black text-lg flex items-center justify-center transition-all shadow-xl ${isLimitReached ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed shadow-none' : 'bg-brand-blue text-white hover:bg-blue-700 shadow-blue-500/20'}`}
         >
           <Plus className="mr-3 h-6 w-6" /> NOVO CURRÍCULO
         </Link>
@@ -78,26 +78,26 @@ const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, 
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         <div className="lg:col-span-4 space-y-8">
-          <div className="bg-white p-10 rounded-[2.5rem] border border-slate-200 shadow-sm">
+          <div className="bg-white dark:bg-slate-900 p-10 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300">
             <div className="flex justify-between items-center mb-10">
-                <h3 className="font-black text-brand-dark uppercase tracking-widest text-xs">Assinatura</h3>
+                <h3 className="font-black text-brand-dark dark:text-slate-300 uppercase tracking-widest text-xs">Assinatura</h3>
                 <div className="flex items-center space-x-2">
-                   <span className={`h-2 w-2 rounded-full ${user.subscriptionStatus === 'active' ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}`}></span>
+                   <span className={`h-2 w-2 rounded-full ${user.subscriptionStatus === 'active' ? 'bg-green-500 animate-pulse' : 'bg-slate-300 dark:bg-slate-700'}`}></span>
                    <span className="text-[10px] font-black uppercase text-slate-400">{user.subscriptionStatus}</span>
                 </div>
             </div>
             
-            <div className={`inline-flex items-center space-x-3 px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest mb-8 ${user.plan === 'premium' ? 'bg-indigo-600 text-white' : user.plan === 'pro' ? 'bg-brand-blue text-white' : 'bg-slate-100 text-slate-600'}`}>
+            <div className={`inline-flex items-center space-x-3 px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest mb-8 ${user.plan === 'premium' ? 'bg-indigo-600 text-white' : user.plan === 'pro' ? 'bg-brand-blue text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
               {(user.plan === 'pro' || user.plan === 'premium') && <Crown className="h-4 w-4" />}
               <span>{planDetails.name}</span>
             </div>
             
             <div className="space-y-4 mb-10">
-                <div className="flex justify-between text-xs font-black text-slate-500 uppercase tracking-widest">
+                <div className="flex justify-between text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                     <span>Documentos</span>
                     <span>{resumes.length} / {planDetails.maxResumes === Infinity ? '∞' : planDetails.maxResumes}</span>
                 </div>
-                <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                <div className="w-full bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
                     <div 
                         className={`h-full transition-all duration-1000 ${isLimitReached ? 'bg-red-500' : 'bg-brand-blue'}`}
                         style={{ width: `${Math.min((resumes.length / (planDetails.maxResumes === Infinity ? 100 : planDetails.maxResumes)) * 100, 100)}%` }}
@@ -108,7 +108,7 @@ const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, 
             {user.plan === 'free' ? (
               <Link 
                 to={AppRoute.PLANS}
-                className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-sm hover:bg-brand-dark transition-all flex items-center justify-center group"
+                className="w-full bg-slate-900 dark:bg-brand-blue text-white py-5 rounded-2xl font-black text-sm hover:bg-brand-dark dark:hover:bg-blue-600 transition-all flex items-center justify-center group"
               >
                 <Zap className="h-4 w-4 mr-2 text-yellow-400 fill-yellow-400 group-hover:scale-110 transition-transform" /> 
                 UPGRADE AGORA
@@ -117,7 +117,7 @@ const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, 
               <button 
                 onClick={handlePortal}
                 disabled={loadingPortal}
-                className="w-full bg-slate-100 text-slate-600 py-5 rounded-2xl font-black text-sm hover:bg-white hover:border-slate-200 border border-transparent transition-all flex items-center justify-center"
+                className="w-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 py-5 rounded-2xl font-black text-sm hover:bg-white dark:hover:bg-slate-700 hover:border-slate-200 dark:hover:border-slate-600 border border-transparent transition-all flex items-center justify-center"
               >
                 {loadingPortal ? <Loader2 className="animate-spin h-4 w-4" /> : <><ExternalLink className="h-4 w-4 mr-2" /> GERENCIAR COBRANÇA</>}
               </button>
@@ -127,19 +127,19 @@ const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, 
 
         <div className="lg:col-span-8">
           <div className="flex items-center justify-between mb-10">
-            <h3 className="font-black text-brand-dark uppercase tracking-widest text-xs flex items-center">
+            <h3 className="font-black text-brand-dark dark:text-slate-300 uppercase tracking-widest text-xs flex items-center">
                 MEUS DOCUMENTOS 
-                <span className="ml-4 bg-slate-100 text-brand-blue h-6 w-6 flex items-center justify-center rounded-full text-[10px]">{resumes.length}</span>
+                <span className="ml-4 bg-slate-100 dark:bg-slate-800 text-brand-blue h-6 w-6 flex items-center justify-center rounded-full text-[10px]">{resumes.length}</span>
             </h3>
           </div>
           
           {resumes.length === 0 ? (
-            <div className="bg-white border-2 border-dashed border-slate-200 rounded-[3rem] p-24 text-center">
-              <div className="bg-slate-50 w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-sm">
-                <FileText className="h-12 w-12 text-slate-300" />
+            <div className="bg-white dark:bg-slate-900 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[3rem] p-24 text-center transition-colors">
+              <div className="bg-slate-50 dark:bg-slate-800 w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-sm">
+                <FileText className="h-12 w-12 text-slate-300 dark:text-slate-600" />
               </div>
-              <h4 className="text-2xl font-black text-brand-dark mb-4">Inicie sua jornada</h4>
-              <p className="text-slate-500 mb-10 max-w-sm mx-auto font-medium">Crie um currículo de alto impacto em minutos.</p>
+              <h4 className="text-2xl font-black text-brand-dark dark:text-white mb-4">Inicie sua jornada</h4>
+              <p className="text-slate-500 dark:text-slate-400 mb-10 max-w-sm mx-auto font-medium">Crie um currículo de alto impacto em minutos.</p>
               <Link 
                 to={AppRoute.CREATE}
                 className="inline-flex items-center bg-brand-blue text-white px-8 py-4 rounded-2xl font-black shadow-lg shadow-blue-500/20 hover:scale-105 transition-transform"
@@ -150,7 +150,7 @@ const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, 
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {resumes.map((resume) => (
-                <div key={resume.id} className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm hover:shadow-xl hover:border-brand-blue/20 transition-all group">
+                <div key={resume.id} className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl dark:hover:shadow-blue-500/5 hover:border-brand-blue/20 dark:hover:border-brand-blue/30 transition-all group">
                   <div className="flex items-start justify-between mb-8">
                     <div className="bg-brand-blue/10 p-4 rounded-2xl">
                       <FileText className="h-7 w-7 text-brand-blue" />
@@ -158,28 +158,28 @@ const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, 
                     <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
                         onClick={() => handleEdit(resume)}
-                        className="p-3 text-slate-400 hover:text-brand-blue hover:bg-brand-blue/5 rounded-xl transition-all"
+                        className="p-3 text-slate-400 hover:text-brand-blue hover:bg-brand-blue/5 dark:hover:bg-brand-blue/10 rounded-xl transition-all"
                       >
                         <Edit2 size={18} />
                       </button>
                       <button 
                         onClick={() => handleDelete(resume.id)}
                         disabled={deletingId === resume.id}
-                        className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all disabled:opacity-50"
+                        className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all disabled:opacity-50"
                       >
                         {deletingId === resume.id ? <Loader2 className="animate-spin" size={18} /> : <Trash2 size={18} />}
                       </button>
                     </div>
                   </div>
-                  <h4 className="text-xl font-black text-brand-dark mb-2 truncate group-hover:text-brand-blue transition-colors">{resume.title || resume.personalInfo.profession || 'Sem título'}</h4>
-                  <div className="flex items-center text-xs text-slate-400 font-bold uppercase tracking-wider mb-8">
+                  <h4 className="text-xl font-black text-brand-dark dark:text-white mb-2 truncate group-hover:text-brand-blue transition-colors">{resume.title || resume.personalInfo.profession || 'Sem título'}</h4>
+                  <div className="flex items-center text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider mb-8">
                     <Calendar className="h-3.5 w-3.5 mr-2" />
                     {new Date(resume.createdAt).toLocaleDateString('pt-BR')}
                   </div>
                   <div className="flex gap-4">
                     <button 
                       onClick={() => handleEdit(resume)}
-                      className="flex-1 bg-slate-900 text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-brand-dark transition-all"
+                      className="flex-1 bg-slate-900 dark:bg-slate-800 text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-brand-dark dark:hover:bg-slate-700 transition-all"
                     >
                       EDITAR
                     </button>
@@ -188,7 +188,7 @@ const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, 
                         setCurrentResume(resume);
                         navigate(AppRoute.EXPORT);
                       }}
-                      className="flex-1 border border-slate-200 text-slate-600 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center justify-center"
+                      className="flex-1 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center"
                     >
                       <Download className="h-4 w-4 mr-2" /> PDF
                     </button>

@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import Stripe from "https://esm.sh/stripe@11.1.0"
@@ -5,7 +6,7 @@ import Stripe from "https://esm.sh/stripe@11.1.0"
 // Declare Deno to fix TypeScript error "Cannot find name 'Deno'" in environments without Deno types
 declare const Deno: any;
 
-const stripe = new Stripe(Deno.env.get('STRsk_live_51SyzVmQr5nP61nSDN75c1ZOLZ0KqpN0kKSJCHvoCc7kn2v467qRRQqOdgvF3Z1OE1ZV1LqtZrl8DiEuFsJZxv13F00v3rppKGCIPE_SECRET_KEY')!, {
+const stripe = new Stripe(Deno.env.get('STRsk_live_51SyzVmQr5nP61nSD5z9o56Nz2P2dzmEHDt8zL0nRyGHGEcW7HEdQRY1pvKdmBdWwe938cML2eKsGYeZ1WPhh5paO00EWFybb3RIPE_SECRET_KEY')!, {
   apiVersion: '2022-11-15',
 })
 
@@ -15,8 +16,8 @@ serve(async (req) => {
   // Get the user from the authorization header
   const authHeader = req.headers.get('Authorization')!
   const supabaseClient = createClient(
-    Deno.env.get('https://rglluccyiptoyvskjrvj.supabase.co')!,
-    Deno.env.get('sb_publishable_kJL-fSkf_5hwPCSRZL2GNQ_wotHWoGO')!,
+    Deno.env.get('SUPABASEhttps://rglluccyiptoyvskjrvj.supabase.co_URL')!,
+    Deno.env.get('SUPABAsb_publishable_kJL-fSkf_5hwPCSRZL2GNQ_wotHWoGOSE_ANON_KEY')!,
     { global: { headers: { Authorization: authHeader } } }
   )
   
