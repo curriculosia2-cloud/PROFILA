@@ -1,28 +1,33 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AppRoute, User } from '../types';
-import { Mail, Lock, LogIn, ArrowLeft } from 'lucide-react';
+import { AppRoute } from '../types';
+import { Mail, Lock, LogIn, ArrowLeft, Loader2 } from 'lucide-react';
+import { supabase } from '../services/supabase';
 
-interface LoginProps {
-  onLogin: (user: User) => void;
-}
-
-const Login: React.FC<LoginProps> = ({ onLogin }) => {
+const Login: React.FC<{ onLogin: any }> = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const mockUser: User = {
-      id: '1',
-      name: email.split('@')[0],
-      email: email,
-      plan: 'free'
-    };
-    onLogin(mockUser);
-    navigate(AppRoute.DASHBOARD);
+    setLoading(true);
+    setError(null);
+
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (authError) {
+      setError("Credenciais inválidas ou erro no acesso.");
+      setLoading(false);
+    } else {
+      navigate(AppRoute.DASHBOARD);
+    }
   };
 
   return (
@@ -36,6 +41,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <h2 className="text-4xl font-black text-brand-dark tracking-tighter">De volta ao <br/><span className="text-brand-blue">Progresso</span></h2>
             <p className="text-slate-500 mt-4 font-medium">Acesse sua conta para gerenciar seu futuro.</p>
             </div>
+
+            {error && (
+                <div className="mb-6 p-4 bg-red-50 text-red-500 rounded-xl text-xs font-bold text-center border border-red-100 animate-in fade-in zoom-in duration-300">
+                    {error}
+                </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-8">
             <div className="space-y-3">
@@ -73,9 +84,10 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
             <button 
                 type="submit"
-                className="w-full bg-brand-blue text-white py-5 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20 active:scale-[0.98]"
+                disabled={loading}
+                className="w-full bg-brand-blue text-white py-5 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20 active:scale-[0.98] disabled:opacity-50"
             >
-                <LogIn className="mr-3 h-5 w-5" /> ENTRAR NA CONTA
+                {loading ? <Loader2 className="animate-spin h-5 w-5" /> : <><LogIn className="mr-3 h-5 w-5" /> ENTRAR NA CONTA</>}
             </button>
             </form>
 

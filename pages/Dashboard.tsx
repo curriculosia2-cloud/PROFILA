@@ -1,24 +1,41 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, ResumeData, AppRoute, PLANS } from '../types';
-import { Plus, FileText, Calendar, Edit2, Download, Trash2, Crown, Zap, Settings } from 'lucide-react';
+import { Plus, FileText, Calendar, Edit2, Download, Trash2, Crown, Zap, Settings, Loader2 } from 'lucide-react';
+import { supabaseService } from '../services/supabase';
 
 interface DashboardProps {
   resumes: ResumeData[];
   user: User;
   setCurrentResume: (resume: ResumeData) => void;
   onOpenPlans: () => void;
+  onRefreshResumes: () => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, onOpenPlans }) => {
+const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, onOpenPlans, onRefreshResumes }) => {
   const navigate = useNavigate();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const planDetails = PLANS[user.plan];
   const isLimitReached = resumes.length >= planDetails.maxResumes;
 
   const handleEdit = (resume: ResumeData) => {
     setCurrentResume(resume);
     navigate(AppRoute.CUSTOMIZE);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Tem certeza que deseja excluir este currículo? Esta ação não pode ser desfeita.")) return;
+    
+    setDeletingId(id);
+    try {
+      await supabaseService.deleteResume(id);
+      onRefreshResumes();
+    } catch (err) {
+      alert("Erro ao excluir currículo.");
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const handleCreateNew = (e: React.MouseEvent) => {
@@ -59,7 +76,7 @@ const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, 
             
             <div className="space-y-4 mb-10">
                 <div className="flex justify-between text-xs font-black text-slate-500 uppercase tracking-widest">
-                    <span>Limite de Documentos</span>
+                    <span>Documentos</span>
                     <span>{resumes.length} / {planDetails.maxResumes === Infinity ? '∞' : planDetails.maxResumes}</span>
                 </div>
                 <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
@@ -80,14 +97,6 @@ const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, 
               </button>
             )}
           </div>
-          
-          <div className="bg-brand-dark p-10 rounded-[2.5rem] shadow-2xl shadow-slate-300 text-white relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-10">
-                <Crown size={120} />
-            </div>
-            <h3 className="text-xl font-black mb-4 flex items-center uppercase tracking-wider">Suporte Prioritário</h3>
-            <p className="text-sm text-slate-400 leading-relaxed font-medium">Assinantes Premium contam com revisão humana opcional e prioridade máxima em nossos servidores de IA.</p>
-          </div>
         </div>
 
         <div className="lg:col-span-8">
@@ -104,7 +113,7 @@ const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, 
                 <FileText className="h-12 w-12 text-slate-300" />
               </div>
               <h4 className="text-2xl font-black text-brand-dark mb-4">Inicie sua jornada</h4>
-              <p className="text-slate-500 mb-10 max-w-sm mx-auto font-medium">Crie um currículo de alto impacto em minutos e destaque-se na multidão.</p>
+              <p className="text-slate-500 mb-10 max-w-sm mx-auto font-medium">Crie um currículo de alto impacto em minutos.</p>
               <Link 
                 to={AppRoute.CREATE}
                 className="inline-flex items-center bg-brand-blue text-white px-8 py-4 rounded-2xl font-black shadow-lg shadow-blue-500/20 hover:scale-105 transition-transform"
@@ -127,8 +136,12 @@ const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, 
                       >
                         <Edit2 size={18} />
                       </button>
-                      <button className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all">
-                        <Trash2 size={18} />
+                      <button 
+                        onClick={() => handleDelete(resume.id)}
+                        disabled={deletingId === resume.id}
+                        className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all disabled:opacity-50"
+                      >
+                        {deletingId === resume.id ? <Loader2 className="animate-spin" size={18} /> : <Trash2 size={18} />}
                       </button>
                     </div>
                   </div>
