@@ -1,0 +1,167 @@
+
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { User, ResumeData, AppRoute, PLANS } from '../types';
+import { Plus, FileText, Calendar, Edit2, Download, Trash2, Crown, Zap, Settings } from 'lucide-react';
+
+interface DashboardProps {
+  resumes: ResumeData[];
+  user: User;
+  setCurrentResume: (resume: ResumeData) => void;
+  onOpenPlans: () => void;
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, onOpenPlans }) => {
+  const navigate = useNavigate();
+  const planDetails = PLANS[user.plan];
+  const isLimitReached = resumes.length >= planDetails.maxResumes;
+
+  const handleEdit = (resume: ResumeData) => {
+    setCurrentResume(resume);
+    navigate(AppRoute.CUSTOMIZE);
+  };
+
+  const handleCreateNew = (e: React.MouseEvent) => {
+    if (isLimitReached) {
+        e.preventDefault();
+        onOpenPlans();
+    }
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-16 selection:bg-brand-blue selection:text-white">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+        <div>
+          <h1 className="text-4xl font-black text-brand-dark tracking-tight mb-3">Bem-vindo, {user.name.split(' ')[0]}!</h1>
+          <p className="text-lg text-slate-500 font-medium">Você tem {resumes.length} {resumes.length === 1 ? 'currículo criado' : 'currículos criados'}.</p>
+        </div>
+        <Link 
+          to={isLimitReached ? "#" : AppRoute.CREATE}
+          onClick={handleCreateNew}
+          className={`px-10 py-5 rounded-2xl font-black text-lg flex items-center justify-center transition-all shadow-xl ${isLimitReached ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none' : 'bg-brand-blue text-white hover:bg-blue-700 shadow-blue-500/20'}`}
+        >
+          <Plus className="mr-3 h-6 w-6" /> NOVO CURRÍCULO
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <div className="lg:col-span-4 space-y-8">
+          <div className="bg-white p-10 rounded-[2.5rem] border border-slate-200 shadow-sm">
+            <div className="flex justify-between items-center mb-10">
+                <h3 className="font-black text-brand-dark uppercase tracking-widest text-xs">Assinatura</h3>
+                <Settings className="h-5 w-5 text-slate-300 cursor-pointer hover:text-brand-dark transition-colors" />
+            </div>
+            
+            <div className={`inline-flex items-center space-x-3 px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest mb-8 ${user.plan === 'premium' ? 'bg-indigo-600 text-white' : user.plan === 'pro' ? 'bg-brand-blue text-white' : 'bg-slate-100 text-slate-600'}`}>
+              {(user.plan === 'pro' || user.plan === 'premium') && <Crown className="h-4 w-4" />}
+              <span>{planDetails.name}</span>
+            </div>
+            
+            <div className="space-y-4 mb-10">
+                <div className="flex justify-between text-xs font-black text-slate-500 uppercase tracking-widest">
+                    <span>Limite de Documentos</span>
+                    <span>{resumes.length} / {planDetails.maxResumes === Infinity ? '∞' : planDetails.maxResumes}</span>
+                </div>
+                <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                    <div 
+                        className={`h-full transition-all duration-1000 ${isLimitReached ? 'bg-red-500' : 'bg-brand-blue'}`}
+                        style={{ width: `${Math.min((resumes.length / (planDetails.maxResumes === Infinity ? 100 : planDetails.maxResumes)) * 100, 100)}%` }}
+                    ></div>
+                </div>
+            </div>
+
+            {user.plan !== 'premium' && (
+              <button 
+                onClick={onOpenPlans}
+                className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-sm hover:bg-brand-dark transition-all flex items-center justify-center group"
+              >
+                <Zap className="h-4 w-4 mr-2 text-yellow-400 fill-yellow-400 group-hover:scale-110 transition-transform" /> 
+                UPGRADE AGORA
+              </button>
+            )}
+          </div>
+          
+          <div className="bg-brand-dark p-10 rounded-[2.5rem] shadow-2xl shadow-slate-300 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4 opacity-10">
+                <Crown size={120} />
+            </div>
+            <h3 className="text-xl font-black mb-4 flex items-center uppercase tracking-wider">Suporte Prioritário</h3>
+            <p className="text-sm text-slate-400 leading-relaxed font-medium">Assinantes Premium contam com revisão humana opcional e prioridade máxima em nossos servidores de IA.</p>
+          </div>
+        </div>
+
+        <div className="lg:col-span-8">
+          <div className="flex items-center justify-between mb-10">
+            <h3 className="font-black text-brand-dark uppercase tracking-widest text-xs flex items-center">
+                MEUS DOCUMENTOS 
+                <span className="ml-4 bg-slate-100 text-brand-blue h-6 w-6 flex items-center justify-center rounded-full text-[10px]">{resumes.length}</span>
+            </h3>
+          </div>
+          
+          {resumes.length === 0 ? (
+            <div className="bg-white border-2 border-dashed border-slate-200 rounded-[3rem] p-24 text-center">
+              <div className="bg-slate-50 w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-sm">
+                <FileText className="h-12 w-12 text-slate-300" />
+              </div>
+              <h4 className="text-2xl font-black text-brand-dark mb-4">Inicie sua jornada</h4>
+              <p className="text-slate-500 mb-10 max-w-sm mx-auto font-medium">Crie um currículo de alto impacto em minutos e destaque-se na multidão.</p>
+              <Link 
+                to={AppRoute.CREATE}
+                className="inline-flex items-center bg-brand-blue text-white px-8 py-4 rounded-2xl font-black shadow-lg shadow-blue-500/20 hover:scale-105 transition-transform"
+              >
+                CRIAR MEU PRIMEIRO
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {resumes.map((resume) => (
+                <div key={resume.id} className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm hover:shadow-xl hover:border-brand-blue/20 transition-all group">
+                  <div className="flex items-start justify-between mb-8">
+                    <div className="bg-brand-blue/10 p-4 rounded-2xl">
+                      <FileText className="h-7 w-7 text-brand-blue" />
+                    </div>
+                    <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button 
+                        onClick={() => handleEdit(resume)}
+                        className="p-3 text-slate-400 hover:text-brand-blue hover:bg-brand-blue/5 rounded-xl transition-all"
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                      <button className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all">
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+                  <h4 className="text-xl font-black text-brand-dark mb-2 truncate group-hover:text-brand-blue transition-colors">{resume.title || resume.personalInfo.profession || 'Sem título'}</h4>
+                  <div className="flex items-center text-xs text-slate-400 font-bold uppercase tracking-wider mb-8">
+                    <Calendar className="h-3.5 w-3.5 mr-2" />
+                    {new Date(resume.createdAt).toLocaleDateString('pt-BR')}
+                  </div>
+                  <div className="flex gap-4">
+                    <button 
+                      onClick={() => handleEdit(resume)}
+                      className="flex-1 bg-slate-900 text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-brand-dark transition-all"
+                    >
+                      EDITAR
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setCurrentResume(resume);
+                        navigate(AppRoute.EXPORT);
+                      }}
+                      className="flex-1 border border-slate-200 text-slate-600 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center justify-center"
+                    >
+                      <Download className="h-4 w-4 mr-2" /> PDF
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
