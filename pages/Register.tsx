@@ -3,11 +3,14 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AppRoute } from '../types';
+import { AppRoute, User } from '../types';
 import { Mail, Lock, User as UserIcon, Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
-import { supabase, supabaseService } from '../services/supabase';
 
-const Register: React.FC<{ onRegister?: any }> = () => {
+interface RegisterProps {
+  onRegister: (user: User) => void;
+}
+
+const Register: React.FC<RegisterProps> = ({ onRegister }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,14 +21,8 @@ const Register: React.FC<{ onRegister?: any }> = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleSocialRegister = async (provider: 'google' | 'linkedin_oidc') => {
-    const { error: authError } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: window.location.origin + '/#/'
-      }
-    });
-    if (authError) setError("Erro ao conectar com provedor social.");
+  const handleSocialRegister = (provider: string) => {
+    setError(`O registro via ${provider} está temporariamente desativado. Use o formulário abaixo.`);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,28 +35,21 @@ const Register: React.FC<{ onRegister?: any }> = () => {
     setLoading(true);
     setError(null);
 
-    const { data, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: name,
-        },
-      },
-    });
-
-    if (authError) {
-      setError(authError.message);
+    // Simulação de registro local
+    setTimeout(() => {
+      const newUser: User = {
+        id: Math.random().toString(36).substr(2, 9),
+        email,
+        name,
+        plan: 'free',
+        subscriptionStatus: 'active',
+        emailConfirmed: true
+      };
+      
+      onRegister(newUser);
+      navigate(AppRoute.DASHBOARD);
       setLoading(false);
-    } else if (data.user) {
-      try {
-        await supabaseService.updateProfile(data.user.id, { name, plan: 'free' });
-        navigate(AppRoute.VERIFY_EMAIL);
-      } catch (profileError) {
-        console.error("Erro ao criar perfil:", profileError);
-        navigate(AppRoute.VERIFY_EMAIL);
-      }
-    }
+    }, 1500);
   };
 
   return (
@@ -161,29 +151,6 @@ const Register: React.FC<{ onRegister?: any }> = () => {
                     {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'CRIAR CONTA GRÁTIS'}
                 </button>
             </form>
-
-            <div className="my-8 flex items-center space-x-4">
-              <div className="flex-1 h-px bg-slate-100 dark:bg-slate-800"></div>
-              <span className="text-[10px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-widest">Ou cadastre-se com</span>
-              <div className="flex-1 h-px bg-slate-100 dark:bg-slate-800"></div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 mb-8">
-              <button 
-                onClick={() => handleSocialRegister('google')}
-                className="flex items-center justify-center px-4 py-4 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all group"
-              >
-                <img src="https://www.svgrepo.com/show/355037/google.svg" className="h-5 w-5 mr-3" alt="Google" />
-                <span className="text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Google</span>
-              </button>
-              <button 
-                onClick={() => handleSocialRegister('linkedin_oidc')}
-                className="flex items-center justify-center px-4 py-4 border border-[#0077B5] dark:border-[#0077B5]/30 rounded-2xl bg-[#0077B5] hover:bg-[#005a8a] transition-all group"
-              >
-                <img src="https://www.svgrepo.com/show/448234/linkedin.svg" className="h-5 w-5 mr-3 brightness-0 invert" alt="LinkedIn" />
-                <span className="text-xs font-black text-white uppercase tracking-widest">LinkedIn</span>
-              </button>
-            </div>
 
             <div className="mt-10 text-center text-slate-500 dark:text-slate-400 text-sm font-medium">
                 Já tem conta? <Link to={AppRoute.LOGIN} className="text-brand-blue font-black uppercase tracking-widest text-xs hover:underline ml-1">Entrar</Link>
