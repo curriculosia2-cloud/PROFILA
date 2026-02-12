@@ -3,22 +3,19 @@ import * as React from 'react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, ResumeData, AppRoute, PLANS } from '../types';
-import { Plus, FileText, Calendar, Edit2, Download, Trash2, Crown, Zap, Settings, Loader2, ExternalLink } from 'lucide-react';
-import { supabaseService } from '../services/supabase';
-import { stripeService } from '../services/stripeService';
+import { Plus, FileText, Calendar, Edit2, Download, Trash2, Crown, Zap, Loader2, ExternalLink } from 'lucide-react';
 
 interface DashboardProps {
   resumes: ResumeData[];
   user: User;
   setCurrentResume: (resume: ResumeData) => void;
   onOpenPlans: () => void;
-  onRefreshResumes: () => void;
+  onDeleteResume: (id: string) => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, onOpenPlans, onRefreshResumes }) => {
+const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, onOpenPlans, onDeleteResume }) => {
   const navigate = useNavigate();
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [loadingPortal, setLoadingPortal] = useState(false);
   const planDetails = PLANS[user.plan];
   const isLimitReached = resumes.length >= planDetails.maxResumes;
 
@@ -27,28 +24,13 @@ const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, 
     navigate(AppRoute.CUSTOMIZE);
   };
 
-  const handlePortal = async () => {
-    setLoadingPortal(true);
-    try {
-      await stripeService.createPortalSession();
-    } catch (err) {
-      alert("Erro ao abrir portal de cobrança.");
-    } finally {
-      setLoadingPortal(false);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if (!window.confirm("Tem certeza que deseja excluir este currículo?")) return;
     setDeletingId(id);
-    try {
-      await supabaseService.deleteResume(id);
-      onRefreshResumes();
-    } catch (err) {
-      alert("Erro ao excluir currículo.");
-    } finally {
+    setTimeout(() => {
+      onDeleteResume(id);
       setDeletingId(null);
-    }
+    }, 500);
   };
 
   return (
@@ -89,13 +71,9 @@ const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, 
                 </div>
             </div>
 
-            {user.plan === 'free' ? (
-              <Link to={AppRoute.PLANS} className="w-full bg-brand-blue text-white py-5 rounded-2xl font-black text-sm flex items-center justify-center hover:bg-blue-600 transition-all">
+            {user.plan === 'free' && (
+              <button onClick={onOpenPlans} className="w-full bg-brand-blue text-white py-5 rounded-2xl font-black text-sm flex items-center justify-center hover:bg-blue-600 transition-all">
                 <Zap className="h-4 w-4 mr-2 text-yellow-400 fill-yellow-400" /> FAZER UPGRADE
-              </Link>
-            ) : (
-              <button onClick={handlePortal} disabled={loadingPortal} className="w-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 py-5 rounded-2xl font-black text-sm flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
-                {loadingPortal ? <Loader2 className="animate-spin h-4 w-4" /> : <><ExternalLink className="h-4 w-4 mr-2" /> COBRANÇA</>}
               </button>
             )}
           </div>
