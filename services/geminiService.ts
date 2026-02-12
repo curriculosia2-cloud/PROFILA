@@ -2,7 +2,8 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ResumeData, Experience } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+// Inicialização da API seguindo as diretrizes de segurança e variáveis de ambiente.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 /**
  * Função principal para polir todo o currículo de uma vez.
@@ -57,7 +58,11 @@ export const polishResumeWithAI = async (data: ResumeData): Promise<ResumeData> 
       }
     });
 
-    const polishedData = JSON.parse(response.text || '{}');
+    if (!response.text) {
+      throw new Error("Resposta vazia da IA");
+    }
+
+    const polishedData = JSON.parse(response.text);
     
     return {
       ...data,
@@ -68,8 +73,15 @@ export const polishResumeWithAI = async (data: ResumeData): Promise<ResumeData> 
       }),
       skills: polishedData.skills || data.skills,
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erro ao processar com IA:", error);
+    
+    // Fallback: Se a conexão for recusada ou falhar, retornamos os dados originais
+    // para não quebrar a experiência do usuário.
+    if (error.message?.includes('fetch') || error.name === 'TypeError') {
+      alert("Não foi possível conectar ao motor de IA. Isso pode ser um bloqueio regional, de rede ou a API Key não foi configurada no ambiente.");
+    }
+    
     return data;
   }
 };
@@ -90,8 +102,13 @@ export const improveDescriptionWithAI = async (role: string, description: string
     });
 
     return response.text?.trim() || description;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erro ao melhorar descrição:", error);
+    
+    if (error.message?.includes('fetch')) {
+      console.warn("Conexão com a IA recusada. Verifique sua região ou conexão de rede.");
+    }
+    
     return description;
   }
 };

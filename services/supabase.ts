@@ -75,5 +75,14 @@ export const supabaseService = {
       .upsert({ id: userId, ...updates, updated_at: new Date().toISOString() });
     
     if (error) throw error;
+  },
+
+  // Auth Extras
+  async resendConfirmationEmail(email: string) {
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: email,
+    });
+    if (error) throw error;
   }
 };

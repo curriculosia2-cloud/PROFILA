@@ -1,8 +1,10 @@
 
-import React, { useState } from 'react';
+// Fix: Use namespace import to correctly populate global JSX.IntrinsicElements
+import * as React from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AppRoute } from '../types';
-import { Mail, Lock, User as UserIcon, Loader2, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { supabase, supabaseService } from '../services/supabase';
 
 const Register: React.FC<{ onRegister: any }> = () => {
@@ -10,9 +12,21 @@ const Register: React.FC<{ onRegister: any }> = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  const handleSocialRegister = async (provider: 'google' | 'linkedin_oidc') => {
+    const { error: authError } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: window.location.origin + '/#/'
+      }
+    });
+    if (authError) setError("Erro ao conectar com provedor social.");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,19 +41,23 @@ const Register: React.FC<{ onRegister: any }> = () => {
     const { data, error: authError } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          full_name: name,
+        },
+      },
     });
 
     if (authError) {
       setError(authError.message);
       setLoading(false);
     } else if (data.user) {
-      // Create user profile in profiles table
       try {
         await supabaseService.updateProfile(data.user.id, { name, plan: 'free' });
-        navigate(AppRoute.DASHBOARD);
+        navigate(AppRoute.VERIFY_EMAIL);
       } catch (profileError) {
         console.error("Erro ao criar perfil:", profileError);
-        navigate(AppRoute.DASHBOARD);
+        navigate(AppRoute.VERIFY_EMAIL);
       }
     }
   };
@@ -70,7 +88,7 @@ const Register: React.FC<{ onRegister: any }> = () => {
                         <input 
                             type="text" required
                             value={name} onChange={(e) => setName(e.target.value)}
-                            className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium"
+                            className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium text-sm"
                             placeholder="Seu nome"
                         />
                     </div>
@@ -83,30 +101,50 @@ const Register: React.FC<{ onRegister: any }> = () => {
                         <input 
                             type="email" required
                             value={email} onChange={(e) => setEmail(e.target.value)}
-                            className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium"
+                            className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium text-sm"
                             placeholder="seu@email.com"
                         />
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Senha</label>
-                        <input 
-                            type="password" required
-                            value={password} onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium"
-                            placeholder="••••"
-                        />
+                        <div className="relative">
+                            <input 
+                                type={showPassword ? "text" : "password"} 
+                                required
+                                value={password} onChange={(e) => setPassword(e.target.value)}
+                                className="w-full px-6 pr-12 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium text-sm"
+                                placeholder="••••"
+                            />
+                            <button 
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
+                            >
+                                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </button>
+                        </div>
                     </div>
                     <div className="space-y-2">
                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Confirmar</label>
-                        <input 
-                            type="password" required
-                            value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium"
-                            placeholder="••••"
-                        />
+                        <div className="relative">
+                            <input 
+                                type={showConfirmPassword ? "text" : "password"} 
+                                required
+                                value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
+                                className="w-full px-6 pr-12 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-brand-blue outline-none transition-all font-medium text-sm"
+                                placeholder="••••"
+                            />
+                            <button 
+                                type="button"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
+                            >
+                                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -118,11 +156,34 @@ const Register: React.FC<{ onRegister: any }> = () => {
                 <button 
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-brand-blue text-white py-5 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20 disabled:opacity-50"
+                    className="w-full bg-brand-blue text-white py-4 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20 disabled:opacity-50"
                 >
                     {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'CRIAR CONTA GRÁTIS'}
                 </button>
             </form>
+
+            <div className="my-8 flex items-center space-x-4">
+              <div className="flex-1 h-px bg-slate-100"></div>
+              <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Ou cadastre-se com</span>
+              <div className="flex-1 h-px bg-slate-100"></div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mb-8">
+              <button 
+                onClick={() => handleSocialRegister('google')}
+                className="flex items-center justify-center px-4 py-4 border border-slate-200 rounded-2xl bg-white hover:bg-slate-50 transition-all group"
+              >
+                <img src="https://www.svgrepo.com/show/355037/google.svg" className="h-5 w-5 mr-3" alt="Google" />
+                <span className="text-xs font-black text-slate-600 uppercase tracking-widest">Google</span>
+              </button>
+              <button 
+                onClick={() => handleSocialRegister('linkedin_oidc')}
+                className="flex items-center justify-center px-4 py-4 border border-[#0077B5] rounded-2xl bg-[#0077B5] hover:bg-[#005a8a] transition-all group"
+              >
+                <img src="https://www.svgrepo.com/show/448234/linkedin.svg" className="h-5 w-5 mr-3 brightness-0 invert" alt="LinkedIn" />
+                <span className="text-xs font-black text-white uppercase tracking-widest">LinkedIn</span>
+              </button>
+            </div>
 
             <div className="mt-10 text-center text-slate-500 text-sm font-medium">
                 Já tem conta? <Link to={AppRoute.LOGIN} className="text-brand-blue font-black uppercase tracking-widest text-xs hover:underline ml-1">Entrar</Link>

@@ -1,5 +1,6 @@
 
-import React from 'react';
+// Fix: Use namespace import to correctly populate global JSX.IntrinsicElements
+import * as React from 'react';
 import { ResumeData } from '../types';
 
 interface TemplateProps {
@@ -15,20 +16,37 @@ const commonStyles = {
   text: "text-sm opacity-85",
 };
 
+// Helper for Photo Rendering
+const ResumePhoto = ({ data, className = "w-32 h-32" }: { data: ResumeData, className?: string }) => {
+  if (!data.customization.showPhoto || !data.personalInfo.photoDataUrl) return null;
+  
+  const shapeClass = data.personalInfo.photoShape === 'circle' ? 'rounded-full' : 
+                     data.personalInfo.photoShape === 'rounded' ? 'rounded-[2rem]' : 'rounded-none';
+                     
+  return (
+    <div className={`${className} ${shapeClass} overflow-hidden border-4 border-white shadow-lg shrink-0 bg-slate-100`}>
+      <img src={data.personalInfo.photoDataUrl} alt="Foto Perfil" className="w-full h-full object-cover" />
+    </div>
+  );
+};
+
 // 1. CLASSIC
 export const ClassicTemplate: React.FC<TemplateProps> = ({ data }) => {
   const { personalInfo, experiences, education, skills, customization } = data;
   return (
     <div className={commonStyles.container}>
-      <header className="text-center mb-[40px] pb-6 border-b-2" style={{ borderColor: customization.primaryColor }}>
-        <h1 className="text-4xl font-black uppercase mb-3 tracking-tighter">{personalInfo.fullName}</h1>
-        <p className="text-xl font-semibold mb-4 tracking-wide" style={{ color: customization.primaryColor }}>{personalInfo.profession}</p>
-        <div className="text-xs space-x-4 opacity-70 font-bold">
-          <span>{personalInfo.email}</span>
-          <span>•</span>
-          <span>{personalInfo.phone}</span>
-          <span>•</span>
-          <span>{personalInfo.city}</span>
+      <header className="flex items-center gap-8 mb-[40px] pb-8 border-b-2" style={{ borderColor: customization.primaryColor }}>
+        <ResumePhoto data={data} className="w-36 h-36" />
+        <div className={customization.showPhoto ? "text-left" : "text-center w-full"}>
+          <h1 className="text-4xl font-black uppercase mb-3 tracking-tighter">{personalInfo.fullName}</h1>
+          <p className="text-xl font-semibold mb-4 tracking-wide" style={{ color: customization.primaryColor }}>{personalInfo.profession}</p>
+          <div className="text-xs space-x-4 opacity-70 font-bold">
+            <span>{personalInfo.email}</span>
+            <span>•</span>
+            <span>{personalInfo.phone}</span>
+            <span>•</span>
+            <span>{personalInfo.city}</span>
+          </div>
         </div>
       </header>
       
@@ -82,13 +100,16 @@ export const ClassicTemplate: React.FC<TemplateProps> = ({ data }) => {
 
 // 2. CLEAN
 export const CleanTemplate: React.FC<TemplateProps> = ({ data }) => {
-  const { personalInfo, experiences, education, skills, customization } = data;
+  const { personalInfo, experiences, skills, customization } = data;
   return (
     <div className={`${commonStyles.container} text-slate-700`}>
-      <div className="mb-[48px]">
-        <h1 className="text-5xl font-extrabold mb-3 tracking-tighter" style={{ color: customization.primaryColor }}>{personalInfo.fullName}</h1>
-        <p className="text-lg font-black text-slate-400 uppercase tracking-[0.2em]">{personalInfo.profession}</p>
-      </div>
+      <header className="flex items-start justify-between mb-[48px]">
+        <div>
+          <h1 className="text-5xl font-extrabold mb-3 tracking-tighter" style={{ color: customization.primaryColor }}>{personalInfo.fullName}</h1>
+          <p className="text-lg font-black text-slate-400 uppercase tracking-[0.2em]">{personalInfo.profession}</p>
+        </div>
+        <ResumePhoto data={data} className="w-24 h-24" />
+      </header>
       
       <div className="flex gap-[40px]">
         <div className="flex-1">
@@ -138,8 +159,11 @@ export const ModernColumnTemplate: React.FC<TemplateProps> = ({ data }) => {
     <div className="flex h-full min-h-[inherit]">
       <aside className="w-[260px] bg-slate-900 text-white px-[32px] py-[40px] flex flex-col">
         <div className="mb-[40px] text-center">
-          {customization.showPhoto && (
-            <div className="w-32 h-32 rounded-3xl bg-slate-800 mx-auto mb-6 border-4 border-slate-800 overflow-hidden flex items-center justify-center shadow-2xl">
+          <div className="flex justify-center mb-6">
+            <ResumePhoto data={data} className="w-36 h-36" />
+          </div>
+          {!data.personalInfo.photoDataUrl && customization.showPhoto && (
+            <div className="w-36 h-36 rounded-full bg-slate-800 mx-auto mb-6 flex items-center justify-center">
               <span className="text-slate-600 text-5xl">👤</span>
             </div>
           )}
@@ -199,10 +223,13 @@ export const ModernBlocksTemplate: React.FC<TemplateProps> = ({ data }) => {
   const { personalInfo, experiences, skills, customization } = data;
   return (
     <div className={commonStyles.container}>
-      <div className="p-10 mb-[40px] text-white rounded-[2rem] shadow-xl" style={{ backgroundColor: customization.primaryColor }}>
-        <h1 className="text-4xl font-black mb-2 tracking-tighter">{personalInfo.fullName}</h1>
-        <p className="text-lg font-bold opacity-80 uppercase tracking-[0.25em]">{personalInfo.profession}</p>
-      </div>
+      <header className="flex items-center gap-10 mb-[40px] p-10 text-white rounded-[2rem] shadow-xl" style={{ backgroundColor: customization.primaryColor }}>
+        <ResumePhoto data={data} className="w-32 h-32" />
+        <div>
+          <h1 className="text-4xl font-black mb-2 tracking-tighter">{personalInfo.fullName}</h1>
+          <p className="text-lg font-bold opacity-80 uppercase tracking-[0.25em]">{personalInfo.profession}</p>
+        </div>
+      </header>
       <div className="grid grid-cols-12 gap-[30px]">
         <div className="col-span-8 space-y-[28px]">
           <section className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100">
@@ -236,7 +263,8 @@ export const ElegantTemplate: React.FC<TemplateProps> = ({ data }) => {
   const { personalInfo, experiences, customization } = data;
   return (
     <div className={`${commonStyles.container} font-serif`}>
-      <header className="text-center mb-[60px] border-b border-slate-100 pb-12">
+      <header className="text-center mb-[60px] border-b border-slate-100 pb-12 flex flex-col items-center">
+        <ResumePhoto data={data} className="w-40 h-40 mb-8" />
         <h1 className="text-5xl font-light tracking-[0.1em] italic mb-4">{personalInfo.fullName}</h1>
         <p className="text-xs font-bold tracking-[0.4em] uppercase opacity-40">{personalInfo.profession}</p>
       </header>
@@ -267,9 +295,12 @@ export const TimelineTemplate: React.FC<TemplateProps> = ({ data }) => {
   const { experiences, customization, personalInfo } = data;
   return (
     <div className={commonStyles.container}>
-      <header className="mb-[48px] border-l-8 pl-8" style={{ borderLeftColor: customization.primaryColor }}>
-        <h1 className="text-5xl font-black tracking-tighter mb-2">{personalInfo.fullName}</h1>
-        <p className="text-slate-400 text-xl font-bold uppercase tracking-widest">{personalInfo.profession}</p>
+      <header className="mb-[48px] border-l-8 pl-8 flex justify-between items-center" style={{ borderLeftColor: customization.primaryColor }}>
+        <div>
+          <h1 className="text-5xl font-black tracking-tighter mb-2">{personalInfo.fullName}</h1>
+          <p className="text-slate-400 text-xl font-bold uppercase tracking-widest">{personalInfo.profession}</p>
+        </div>
+        <ResumePhoto data={data} className="w-28 h-28" />
       </header>
       <div className="relative pl-[40px] border-l-4 border-slate-100 space-y-[40px] ml-6">
         {experiences.map(e => (
@@ -288,12 +319,17 @@ export const TimelineTemplate: React.FC<TemplateProps> = ({ data }) => {
 
 // 7. TECH
 export const TechTemplate: React.FC<TemplateProps> = ({ data }) => {
-  const { skills, experiences, personalInfo, customization } = data;
+  const { skills, experiences, personalInfo } = data;
   return (
     <div className="p-0 h-full font-mono bg-[#0F172A] text-slate-300 px-[50px] py-[40px] leading-[1.6]">
-      <header className="mb-[40px] border-b border-slate-800 pb-10">
-        <h1 className="text-4xl font-black text-white mb-3 tracking-tighter">{personalInfo.fullName}</h1>
-        <p className="text-brand-blue font-black uppercase tracking-widest text-lg opacity-80">&gt; {personalInfo.profession}</p>
+      <header className="mb-[40px] border-b border-slate-800 pb-10 flex justify-between items-end">
+        <div>
+          <h1 className="text-4xl font-black text-white mb-3 tracking-tighter">{personalInfo.fullName}</h1>
+          <p className="text-brand-blue font-black uppercase tracking-widest text-lg opacity-80">&gt; {personalInfo.profession}</p>
+        </div>
+        <div className="grayscale contrast-125 border-2 border-brand-blue/30">
+          <ResumePhoto data={data} className="w-24 h-24" />
+        </div>
       </header>
       <div className="grid grid-cols-12 gap-[30px]">
         <div className="col-span-8 space-y-[32px]">
@@ -327,9 +363,12 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ data }) => {
   return (
     <div className="px-[50px] py-[40px] h-full border-[20px] border-slate-100 flex flex-col bg-white text-slate-900 leading-[1.6]">
       <header className="flex justify-between items-end mb-[48px] border-b-8 border-slate-900 pb-10">
-        <div>
-          <h1 className="text-6xl font-black tracking-tighter leading-none mb-3">{personalInfo.fullName}</h1>
-          <p className="text-sm font-black uppercase tracking-[0.4em] opacity-40">{personalInfo.profession}</p>
+        <div className="flex items-end gap-8">
+          <ResumePhoto data={data} className="w-32 h-40" />
+          <div>
+            <h1 className="text-6xl font-black tracking-tighter leading-none mb-3">{personalInfo.fullName}</h1>
+            <p className="text-sm font-black uppercase tracking-[0.4em] opacity-40">{personalInfo.profession}</p>
+          </div>
         </div>
         <div className="text-right text-[11px] font-black uppercase tracking-[0.25em] space-y-2 opacity-60">
           <p>{personalInfo.city}</p>
@@ -365,8 +404,11 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data }) => {
   const { personalInfo, experiences, skills, customization } = data;
   return (
     <div className="h-full flex flex-col bg-white">
-      <header className="h-[220px] relative flex items-center px-[50px] overflow-hidden" style={{ backgroundColor: customization.primaryColor }}>
+      <header className="h-[220px] relative flex items-center px-[50px] gap-10 overflow-hidden" style={{ backgroundColor: customization.primaryColor }}>
         <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+        <div className="relative z-10">
+          <ResumePhoto data={data} className="w-32 h-32 border-white/40" />
+        </div>
         <div className="relative z-10 text-white">
           <h1 className="text-6xl font-black tracking-tighter mb-2">{personalInfo.fullName}</h1>
           <p className="text-2xl font-bold opacity-80 tracking-widest">{personalInfo.profession}</p>
@@ -411,7 +453,7 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data }) => {
   );
 };
 
-// 10. ATS SIMPLE
+// 10. ATS SIMPLE (ATS typically doesn't have photos, but we'll allow it if forced)
 export const AtsSimpleTemplate: React.FC<TemplateProps> = ({ data }) => {
   const { personalInfo, experiences, skills } = data;
   return (
@@ -455,9 +497,12 @@ export const CompactTemplate: React.FC<TemplateProps> = ({ data }) => {
   return (
     <div className={`${commonStyles.container} text-[11px] px-[50px] py-[40px] leading-[1.5]`}>
       <div className="flex justify-between items-center mb-[32px] border-b-2 pb-6">
-        <div>
-          <h1 className="text-2xl font-black uppercase tracking-tight mb-1" style={{ color: customization.primaryColor }}>{personalInfo.fullName}</h1>
-          <p className="font-black opacity-60 uppercase tracking-widest">{personalInfo.profession}</p>
+        <div className="flex items-center gap-6">
+          <ResumePhoto data={data} className="w-20 h-20" />
+          <div>
+            <h1 className="text-2xl font-black uppercase tracking-tight mb-1" style={{ color: customization.primaryColor }}>{personalInfo.fullName}</h1>
+            <p className="font-black opacity-60 uppercase tracking-widest">{personalInfo.profession}</p>
+          </div>
         </div>
         <div className="text-right opacity-60 font-black uppercase tracking-widest space-y-1">
           <p>{personalInfo.email}</p>
@@ -494,19 +539,22 @@ export const CompactTemplate: React.FC<TemplateProps> = ({ data }) => {
 
 // 12. INTERNATIONAL
 export const InternationalTemplate: React.FC<TemplateProps> = ({ data }) => {
-  const { personalInfo, experiences, education, skills, customization } = data;
+  const { personalInfo, experiences, skills, customization } = data;
   return (
     <div className={`${commonStyles.container} px-[60px] py-[50px] leading-[1.7]`}>
-      <div className="mb-[48px]">
-        <h1 className="text-5xl font-bold mb-3 tracking-tighter">{personalInfo.fullName}</h1>
-        <p className="text-xl opacity-60 font-medium tracking-wide">{personalInfo.profession}</p>
-        <div className="flex gap-6 mt-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
-           <span>{personalInfo.email}</span>
-           <span className="opacity-20">/</span>
-           <span>{personalInfo.phone}</span>
-           <span className="opacity-20">/</span>
-           <span>{personalInfo.city}</span>
+      <div className="mb-[48px] flex justify-between items-start">
+        <div>
+          <h1 className="text-5xl font-bold mb-3 tracking-tighter">{personalInfo.fullName}</h1>
+          <p className="text-xl opacity-60 font-medium tracking-wide">{personalInfo.profession}</p>
+          <div className="flex gap-6 mt-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
+             <span>{personalInfo.email}</span>
+             <span className="opacity-20">/</span>
+             <span>{personalInfo.phone}</span>
+             <span className="opacity-20">/</span>
+             <span>{personalInfo.city}</span>
+          </div>
         </div>
+        <ResumePhoto data={data} className="w-32 h-40" />
       </div>
       <div className="space-y-[40px]">
          <section>

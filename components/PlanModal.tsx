@@ -1,6 +1,7 @@
 
-import React from 'react';
-import { X, Check, Crown, Zap } from 'lucide-react';
+// Fix: Use namespace import to correctly populate global JSX.IntrinsicElements
+import * as React from 'react';
+import { X, Check, Crown, Zap, Star } from 'lucide-react';
 import { PlanType, PLANS } from '../types';
 
 interface PlanModalProps {
@@ -36,11 +37,11 @@ const PlanModal: React.FC<PlanModalProps> = ({ isOpen, onClose, currentPlan, onU
             return (
               <div 
                 key={planId} 
-                className={`p-10 rounded-[2.5rem] border-2 flex flex-col transition-all duration-500 relative ${isCurrent ? 'border-brand-blue bg-blue-50/20' : isPremium ? 'border-slate-900 bg-slate-900 text-white shadow-2xl shadow-slate-400 scale-105' : 'border-slate-100 hover:border-slate-200'}`}
+                className={`p-10 rounded-[2.5rem] border-2 flex flex-col transition-all duration-500 relative ${isCurrent ? 'border-brand-blue bg-blue-50/20' : isPro ? 'border-brand-blue bg-white shadow-2xl scale-105' : isPremium ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-100 hover:border-slate-200'}`}
               >
-                {isPremium && (
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-blue text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-xl">
-                        A escolha dos Executivos
+                {isPro && (
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-blue text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-xl flex items-center">
+                        <Star size={12} className="mr-2 fill-white" /> Mais Popular
                     </div>
                 )}
 
@@ -53,40 +54,73 @@ const PlanModal: React.FC<PlanModalProps> = ({ isOpen, onClose, currentPlan, onU
                   </p>
                   <div className="mt-8 flex items-baseline">
                     <span className={`text-5xl font-black ${isPremium ? 'text-white' : 'text-brand-dark'}`}>{plan.price}</span>
-                    <span className={`text-xs ml-2 font-bold uppercase tracking-widest ${isPremium ? 'text-slate-400' : 'text-slate-400'}`}>/ único</span>
+                    <span className={`text-xs ml-2 font-bold uppercase tracking-widest ${isPremium ? 'text-slate-400' : 'text-slate-400'}`}>/ mês</span>
                   </div>
                 </div>
 
                 <ul className="space-y-5 mb-12 flex-grow">
+                  {/* Common and Specific Features */}
                   <li className="flex items-start text-sm font-semibold">
                     <Check className={`h-5 w-5 mr-3 flex-shrink-0 ${isPremium ? 'text-blue-400' : 'text-brand-blue'}`} />
                     <span className={isPremium ? 'text-slate-300' : 'text-slate-600'}>
-                        {plan.maxResumes === Infinity ? 'Criações ilimitadas' : `${plan.maxResumes} Currículo profissional`}
+                        {planId === 'free' ? '1 currículo' : planId === 'pro' ? '5 currículos' : 'Currículos ilimitados'}
                     </span>
                   </li>
                   <li className="flex items-start text-sm font-semibold">
                     <Check className={`h-5 w-5 mr-3 flex-shrink-0 ${isPremium ? 'text-blue-400' : 'text-brand-blue'}`} />
                     <span className={isPremium ? 'text-slate-300' : 'text-slate-600'}>
-                        {plan.hasWatermark ? 'Selo de criação Profia' : 'Documento 100% Branco (Limpo)'}
+                        {plan.hasWatermark ? 'Com marca d’água' : 'Sem marca d’água'}
                     </span>
                   </li>
                   <li className="flex items-start text-sm font-semibold">
                     <Check className={`h-5 w-5 mr-3 flex-shrink-0 ${isPremium ? 'text-blue-400' : 'text-brand-blue'}`} />
                     <span className={isPremium ? 'text-slate-300' : 'text-slate-600'}>
-                        {plan.templatesCount} Modelo(s) de alta conversão
+                        {plan.templatesCount} Templates {isPremium ? 'exclusivos' : ''}
                     </span>
                   </li>
-                  {plan.advancedCustomization && (
-                    <li className="flex items-start text-sm font-semibold">
-                      <Check className={`h-5 w-5 mr-3 flex-shrink-0 ${isPremium ? 'text-blue-400' : 'text-brand-blue'}`} />
-                      <span className={isPremium ? 'text-slate-300' : 'text-slate-600'}>Personalização de Cores e Fontes</span>
-                    </li>
+                  
+                  {/* Pro & Premium Features */}
+                  {(isPro || isPremium) && (
+                    <>
+                      <li className="flex items-start text-sm font-semibold">
+                        <Check className={`h-5 w-5 mr-3 flex-shrink-0 ${isPremium ? 'text-blue-400' : 'text-brand-blue'}`} />
+                        <span className={isPremium ? 'text-slate-300' : 'text-slate-600'}>Personalização de cores</span>
+                      </li>
+                      <li className="flex items-start text-sm font-semibold">
+                        <Check className={`h-5 w-5 mr-3 flex-shrink-0 ${isPremium ? 'text-blue-400' : 'text-brand-blue'}`} />
+                        <span className={isPremium ? 'text-slate-300' : 'text-slate-600'}>Foto liberada</span>
+                      </li>
+                      <li className="flex items-start text-sm font-semibold">
+                        <Check className={`h-5 w-5 mr-3 flex-shrink-0 ${isPremium ? 'text-blue-400' : 'text-brand-blue'}`} />
+                        <span className={isPremium ? 'text-slate-300' : 'text-slate-600'}>Download ilimitado</span>
+                      </li>
+                    </>
                   )}
-                  {plan.aiPriority && (
-                    <li className="flex items-start text-sm font-semibold">
-                      <Zap className="h-5 w-5 mr-3 flex-shrink-0 text-yellow-400 fill-yellow-400" />
-                      <span className={isPremium ? 'text-white' : 'text-brand-dark'}>Análise de IA Multicamadas</span>
-                    </li>
+
+                  {/* Premium Only Features */}
+                  {isPremium && (
+                    <>
+                      <li className="flex items-start text-sm font-semibold">
+                        <Zap className="h-5 w-5 mr-3 flex-shrink-0 text-yellow-400 fill-yellow-400" />
+                        <span className="text-white">Ajuste fino de layout</span>
+                      </li>
+                      <li className="flex items-start text-sm font-semibold">
+                        <Zap className="h-5 w-5 mr-3 flex-shrink-0 text-yellow-400 fill-yellow-400" />
+                        <span className="text-white">IA Avançada</span>
+                      </li>
+                      <li className="flex items-start text-sm font-semibold">
+                        <Zap className="h-5 w-5 mr-3 flex-shrink-0 text-yellow-400 fill-yellow-400" />
+                        <span className="text-white">Adaptação automática p/ vaga</span>
+                      </li>
+                      <li className="flex items-start text-sm font-semibold">
+                        <Zap className="h-5 w-5 mr-3 flex-shrink-0 text-yellow-400 fill-yellow-400" />
+                        <span className="text-white">PDF Premium HD</span>
+                      </li>
+                      <li className="flex items-start text-sm font-semibold">
+                        <Crown className="h-5 w-5 mr-3 flex-shrink-0 text-blue-400" />
+                        <span className="text-white font-bold">Prioridade de processamento</span>
+                      </li>
+                    </>
                   )}
                 </ul>
 
@@ -97,8 +131,10 @@ const PlanModal: React.FC<PlanModalProps> = ({ isOpen, onClose, currentPlan, onU
                     isCurrent 
                       ? 'bg-slate-100 text-slate-400 cursor-not-allowed' 
                       : isPremium 
-                        ? 'bg-brand-blue text-white hover:bg-blue-600 shadow-xl shadow-blue-500/20' 
-                        : 'bg-slate-100 text-brand-dark hover:bg-slate-200'
+                        ? 'bg-white text-brand-dark hover:bg-slate-100 shadow-xl shadow-white/10' 
+                        : isPro
+                          ? 'bg-brand-blue text-white hover:bg-blue-600 shadow-xl shadow-blue-500/20'
+                          : 'bg-slate-100 text-brand-dark hover:bg-slate-200'
                   }`}
                 >
                   {isCurrent ? 'Plano Ativo' : 'Escolher Este Plano'}
@@ -111,7 +147,7 @@ const PlanModal: React.FC<PlanModalProps> = ({ isOpen, onClose, currentPlan, onU
         <div className="p-12 bg-slate-50 border-t border-slate-100 flex flex-col md:flex-row items-center justify-center gap-12 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
             <div className="flex items-center"><Zap className="h-4 w-4 mr-2 text-brand-blue" /> Ativação Imediata</div>
             <div className="flex items-center"><Check className="h-4 w-4 mr-2 text-brand-blue" /> Pagamento 100% Seguro</div>
-            <div className="flex items-center"><Crown className="h-4 w-4 mr-2 text-brand-blue" /> Garantia de Satisfação</div>
+            <div className="flex items-center"><Star className="h-4 w-4 mr-2 text-brand-blue" /> Garantia de Satisfação</div>
         </div>
       </div>
     </div>

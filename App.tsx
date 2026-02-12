@@ -1,17 +1,31 @@
 
-import React, { useState, useEffect } from 'react';
+// Fix: Use namespace import to correctly populate global JSX.IntrinsicElements
+import * as React from 'react';
+import { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import VerifyEmail from './pages/VerifyEmail';
 import Dashboard from './pages/Dashboard';
 import CreateResume from './pages/CreateResume';
 import CustomizeResume from './pages/CustomizeResume';
 import ExportResume from './pages/ExportResume';
+import PlansPage from './pages/PlansPage';
+import BillingSuccess from './pages/BillingSuccess';
 import PlanModal from './components/PlanModal';
-import { User, ResumeData, AppRoute, PlanType } from './types';
+import { User, ResumeData, AppRoute, PlanType, SubscriptionStatus } from './types';
 import { supabase, supabaseService } from './services/supabase';
+import { stripeService } from './services/stripeService';
+
+const PrivateRoute = ({ children, user }: any) => {
+  if (!user) return <Navigate to={AppRoute.LOGIN} />;
+  if (!user.emailConfirmed) return <Navigate to={AppRoute.VERIFY_EMAIL} />;
+  return <>{children}</>;
+};
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -21,18 +35,35 @@ const App: React.FC = () => {
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
 
   useEffect(() => {
-    // 1. Handle Auth State Changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
-        const profile = await supabaseService.getProfile(session.user.id);
-        const userData: User = {
-          id: session.user.id,
-          email: session.user.email!,
-          name: profile?.name || session.user.email!.split('@')[0],
-          plan: profile?.plan || 'free'
-        };
-        setUser(userData);
-        loadUserResumes(session.user.id);
+        const isEmailConfirmed = !!session.user.email_confirmed_at;
+        
+        if (isEmailConfirmed) {
+          const profile = await supabaseService.getProfile(session.user.id);
+          const subData = await stripeService.getSubscription(session.user.id);
+
+          const userData: User = {
+            id: session.user.id,
+            email: session.user.email!,
+            name: profile?.name || session.user.email!.split('@')[0],
+            plan: subData?.plan || 'free',
+            subscriptionStatus: subData?.status || 'inactive',
+            emailConfirmed: true
+          };
+          setUser(userData);
+          loadUserResumes(session.user.id);
+        } else {
+          setUser({
+            id: session.user.id,
+            email: session.user.email!,
+            name: session.user.email!.split('@')[0],
+            plan: 'free',
+            subscriptionStatus: 'inactive',
+            emailConfirmed: false
+          });
+          setResumes([]);
+        }
       } else {
         setUser(null);
         setResumes([]);
@@ -59,7 +90,7 @@ const App: React.FC = () => {
   };
 
   const handleSaveResume = async (resume: ResumeData) => {
-    if (!user) return;
+    if (!user || !user.emailConfirmed) return;
     try {
       const saved = await supabaseService.saveResume(user.id, resume);
       const updatedResumes = resumes.find(r => r.id === saved.id)
@@ -74,12 +105,10 @@ const App: React.FC = () => {
   };
 
   const handleUpgrade = async (plan: PlanType) => {
-    if (!user) return;
+    // No modo real, redirecionamos para o Stripe, mas mantemos o callback para mock/local
+    if (!user || !user.emailConfirmed) return;
     try {
-      await supabaseService.updateProfile(user.id, { plan });
-      setUser({ ...user, plan });
-      setIsPlanModalOpen(false);
-      alert(`Parabéns! Você agora é um membro ${plan.toUpperCase()}.`);
+      await stripeService.createCheckoutSession(plan === 'pro' ? 'price_PRO_PLACEHOLDER' : 'price_PREMIUM_PLACEHOLDER');
     } catch (err) {
       console.error("Erro no upgrade:", err);
     }
@@ -96,16 +125,21 @@ const App: React.FC = () => {
 
   return (
     <Router>
-      <Layout user={user} onLogout={handleLogout}>
+      <Layout user={user && user.emailConfirmed ? user : null} onLogout={handleLogout}>
         <Routes>
           <Route path={AppRoute.LANDING} element={<Landing />} />
-          <Route path={AppRoute.LOGIN} element={user ? <Navigate to={AppRoute.DASHBOARD} /> : <Login onLogin={() => {}} />} />
-          <Route path={AppRoute.REGISTER} element={user ? <Navigate to={AppRoute.DASHBOARD} /> : <Register onRegister={() => {}} />} />
+          <Route path={AppRoute.LOGIN} element={user && user.emailConfirmed ? <Navigate to={AppRoute.DASHBOARD} /> : <Login onLogin={() => {}} />} />
+          <Route path={AppRoute.REGISTER} element={user && user.emailConfirmed ? <Navigate to={AppRoute.DASHBOARD} /> : <Register onRegister={() => {}} />} />
+          <Route path={AppRoute.FORGOT_PASSWORD} element={<ForgotPassword />} />
+          <Route path={AppRoute.RESET_PASSWORD} element={<ResetPassword />} />
+          <Route path={AppRoute.VERIFY_EMAIL} element={<VerifyEmail userEmail={user?.email} />} />
           
-          <Route path={AppRoute.DASHBOARD} element={user ? <Dashboard resumes={resumes} user={user} setCurrentResume={setCurrentResume} onOpenPlans={() => setIsPlanModalOpen(true)} onRefreshResumes={() => loadUserResumes(user.id)} /> : <Navigate to={AppRoute.LOGIN} />} />
-          <Route path={AppRoute.CREATE} element={user ? <CreateResume onSave={handleSaveResume} user={user} resumesCount={resumes.length} onOpenPlans={() => setIsPlanModalOpen(true)} /> : <Navigate to={AppRoute.LOGIN} />} />
-          <Route path={AppRoute.CUSTOMIZE} element={user && currentResume ? <CustomizeResume resume={currentResume} onSave={handleSaveResume} user={user} onOpenPlans={() => setIsPlanModalOpen(true)} /> : <Navigate to={AppRoute.DASHBOARD} />} />
-          <Route path={AppRoute.EXPORT} element={user && currentResume ? <ExportResume resume={currentResume} user={user} /> : <Navigate to={AppRoute.DASHBOARD} />} />
+          <Route path={AppRoute.DASHBOARD} element={<PrivateRoute user={user}><Dashboard resumes={resumes} user={user!} setCurrentResume={setCurrentResume} onOpenPlans={() => setIsPlanModalOpen(true)} onRefreshResumes={() => loadUserResumes(user!.id)} /></PrivateRoute>} />
+          <Route path={AppRoute.CREATE} element={<PrivateRoute user={user}><CreateResume onSave={handleSaveResume} user={user!} resumesCount={resumes.length} onOpenPlans={() => setIsPlanModalOpen(true)} /></PrivateRoute>} />
+          <Route path={AppRoute.CUSTOMIZE} element={<PrivateRoute user={user}>{currentResume ? <CustomizeResume resume={currentResume} onSave={handleSaveResume} user={user!} onOpenPlans={() => setIsPlanModalOpen(true)} /> : <Navigate to={AppRoute.DASHBOARD} />}</PrivateRoute>} />
+          <Route path={AppRoute.EXPORT} element={<PrivateRoute user={user}>{currentResume ? <ExportResume resume={currentResume} user={user!} /> : <Navigate to={AppRoute.DASHBOARD} />}</PrivateRoute>} />
+          <Route path={AppRoute.PLANS} element={<PlansPage currentPlan={user?.plan || 'free'} subscriptionStatus={user?.subscriptionStatus || 'inactive'} />} />
+          <Route path={AppRoute.BILLING_SUCCESS} element={<BillingSuccess />} />
         </Routes>
 
         <PlanModal 

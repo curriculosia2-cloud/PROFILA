@@ -1,5 +1,6 @@
 
-import React from 'react';
+// Fix: Use namespace import to correctly populate global JSX.IntrinsicElements
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { CheckCircle, Zap, Layout as LayoutIcon, Download, ArrowRight, ShieldCheck, MousePointer2, Trophy, Target, Sparkles } from 'lucide-react';
 import { AppRoute } from '../types';
@@ -36,12 +37,12 @@ const Landing: React.FC = () => {
             >
               CRIAR MEU CURRÍCULO AGORA <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <a 
-              href="#pricing"
+            <Link 
+              to={AppRoute.PLANS}
               className="w-full sm:w-auto bg-white/5 text-white border border-white/10 px-10 py-5 rounded-2xl font-black text-lg hover:bg-white/10 transition-all flex items-center justify-center"
             >
               VER PLANOS E PREÇOS
-            </a>
+            </Link>
           </div>
           
           <div className="mt-8 text-slate-500 text-sm font-bold uppercase tracking-widest flex items-center justify-center space-x-4">
@@ -107,10 +108,10 @@ const Landing: React.FC = () => {
           <p className="text-slate-400 mb-16 max-w-xl mx-auto text-lg">Escolha o plano que melhor se adapta ao seu momento profissional.</p>
           
           <Link 
-            to={AppRoute.REGISTER}
+            to={AppRoute.PLANS}
             className="inline-flex items-center bg-brand-blue text-white px-12 py-6 rounded-2xl font-black text-xl hover:bg-blue-600 transition-all shadow-2xl shadow-blue-500/20"
           >
-            QUERO COMEÇAR AGORA
+            VER TODOS OS PLANOS
           </Link>
           <p className="mt-8 text-slate-500 text-xs font-bold uppercase tracking-widest">Cancele a qualquer momento. Sem pegadinhas.</p>
         </div>

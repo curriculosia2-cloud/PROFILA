@@ -1,11 +1,13 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+// Fix: Use namespace import to correctly populate global JSX.IntrinsicElements
+import * as React from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { ResumeData, AppRoute, User, PLANS, TemplateId } from '../types';
 import { 
   Check, Palette, Type, Layout as LayoutIcon, Camera, Save, 
   Download, Lock, Sparkles, ChevronLeft, MoveVertical, 
-  Crown, Edit3, Globe, Zap, Cpu, Award, ListFilter
+  Crown, Edit3, Globe, Zap, Cpu, Award, ListFilter, EyeOff, User as UserIcon
 } from 'lucide-react';
 import { TemplateRenderer } from '../components/Templates';
 
@@ -159,6 +161,34 @@ const CustomizeResume: React.FC<CustomizeResumeProps> = ({ resume, onSave, user,
 
           <div className="bg-white p-8 rounded-[3rem] border border-slate-200 shadow-sm space-y-10">
             
+            {/* Miniatura de Perfil Lateral */}
+            <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center space-x-6">
+              <div className="relative">
+                <div className={`w-20 h-20 bg-white shadow-md overflow-hidden flex items-center justify-center transition-all ${localData.personalInfo.photoShape === 'circle' ? 'rounded-full' : localData.personalInfo.photoShape === 'rounded' ? 'rounded-2xl' : 'rounded-none'}`}>
+                  {localData.personalInfo.photoDataUrl ? (
+                    <img src={localData.personalInfo.photoDataUrl} className={`w-full h-full object-cover transition-all ${!localData.customization.showPhoto ? 'grayscale opacity-30 scale-95' : ''}`} alt="Miniatura" />
+                  ) : (
+                    <UserIcon className="text-slate-200 h-10 w-10" />
+                  )}
+                  {!localData.customization.showPhoto && localData.personalInfo.photoDataUrl && (
+                    <div className="absolute inset-0 flex items-center justify-center text-slate-400">
+                      <EyeOff size={20} />
+                    </div>
+                  )}
+                </div>
+                <div className="absolute -bottom-1 -right-1 bg-white p-1.5 rounded-full shadow-sm border border-slate-100">
+                   <Camera size={12} className="text-brand-blue" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <h5 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Visualização de Perfil</h5>
+                <p className="text-xs font-bold text-brand-dark truncate">{localData.personalInfo.fullName || 'Usuário Profila'}</p>
+                <span className={`text-[9px] font-black uppercase tracking-widest ${localData.customization.showPhoto ? 'text-green-500' : 'text-slate-400'}`}>
+                  {localData.customization.showPhoto ? 'Ativada no Currículo' : 'Oculta no Currículo'}
+                </span>
+              </div>
+            </div>
+
             {/* Seletor de Modelo Avançado */}
             <div className="space-y-6">
               <div className="flex justify-between items-center">
@@ -186,7 +216,7 @@ const CustomizeResume: React.FC<CustomizeResumeProps> = ({ resume, onSave, user,
                   return (
                     <button 
                       key={t.id}
-                      onClick={() => locked ? onOpenPlans() : handleUpdate({ template: t.id as any })}
+                      onClick={() => locked ? navigate(AppRoute.PLANS) : handleUpdate({ template: t.id as any })}
                       className={`relative aspect-[3/4] rounded-2xl border-2 transition-all p-4 flex flex-col items-center justify-center text-center group ${localData.customization.template === t.id ? 'border-brand-blue bg-blue-50/20' : 'border-slate-100 hover:border-slate-200 bg-white'}`}
                     >
                       <div className={`mb-3 p-3 rounded-xl ${localData.customization.template === t.id ? 'bg-brand-blue text-white' : 'bg-slate-50 text-slate-400 group-hover:bg-slate-100'}`}>
@@ -294,12 +324,12 @@ const CustomizeResume: React.FC<CustomizeResumeProps> = ({ resume, onSave, user,
                 </div>
                 <h5 className="text-lg font-black mb-2 tracking-tight">Desbloquear Premium</h5>
                 <p className="text-xs text-slate-400 font-medium mb-6 leading-relaxed">Acesso total a todos os 12 templates e remoção automática da marca d'água.</p>
-                <button 
-                  onClick={onOpenPlans}
-                  className="w-full py-4 bg-brand-blue text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/20"
+                <Link 
+                  to={AppRoute.PLANS}
+                  className="w-full py-4 bg-brand-blue text-white rounded-xl font-black text-center text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/20 block"
                 >
                    VER PLANOS
-                </button>
+                </Link>
              </div>
           )}
         </div>

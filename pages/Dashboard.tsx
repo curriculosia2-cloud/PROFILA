@@ -1,9 +1,12 @@
 
-import React, { useState } from 'react';
+// Fix: Use namespace import to correctly populate global JSX.IntrinsicElements
+import * as React from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, ResumeData, AppRoute, PLANS } from '../types';
-import { Plus, FileText, Calendar, Edit2, Download, Trash2, Crown, Zap, Settings, Loader2 } from 'lucide-react';
+import { Plus, FileText, Calendar, Edit2, Download, Trash2, Crown, Zap, Settings, Loader2, ExternalLink } from 'lucide-react';
 import { supabaseService } from '../services/supabase';
+import { stripeService } from '../services/stripeService';
 
 interface DashboardProps {
   resumes: ResumeData[];
@@ -16,12 +19,24 @@ interface DashboardProps {
 const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, onOpenPlans, onRefreshResumes }) => {
   const navigate = useNavigate();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [loadingPortal, setLoadingPortal] = useState(false);
   const planDetails = PLANS[user.plan];
   const isLimitReached = resumes.length >= planDetails.maxResumes;
 
   const handleEdit = (resume: ResumeData) => {
     setCurrentResume(resume);
     navigate(AppRoute.CUSTOMIZE);
+  };
+
+  const handlePortal = async () => {
+    setLoadingPortal(true);
+    try {
+      await stripeService.createPortalSession();
+    } catch (err) {
+      alert("Erro ao abrir portal de cobrança.");
+    } finally {
+      setLoadingPortal(false);
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -41,7 +56,7 @@ const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, 
   const handleCreateNew = (e: React.MouseEvent) => {
     if (isLimitReached) {
         e.preventDefault();
-        onOpenPlans();
+        navigate(AppRoute.PLANS);
     }
   };
 
@@ -66,7 +81,10 @@ const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, 
           <div className="bg-white p-10 rounded-[2.5rem] border border-slate-200 shadow-sm">
             <div className="flex justify-between items-center mb-10">
                 <h3 className="font-black text-brand-dark uppercase tracking-widest text-xs">Assinatura</h3>
-                <Settings className="h-5 w-5 text-slate-300 cursor-pointer hover:text-brand-dark transition-colors" />
+                <div className="flex items-center space-x-2">
+                   <span className={`h-2 w-2 rounded-full ${user.subscriptionStatus === 'active' ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}`}></span>
+                   <span className="text-[10px] font-black uppercase text-slate-400">{user.subscriptionStatus}</span>
+                </div>
             </div>
             
             <div className={`inline-flex items-center space-x-3 px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest mb-8 ${user.plan === 'premium' ? 'bg-indigo-600 text-white' : user.plan === 'pro' ? 'bg-brand-blue text-white' : 'bg-slate-100 text-slate-600'}`}>
@@ -87,13 +105,21 @@ const Dashboard: React.FC<DashboardProps> = ({ resumes, user, setCurrentResume, 
                 </div>
             </div>
 
-            {user.plan !== 'premium' && (
-              <button 
-                onClick={onOpenPlans}
+            {user.plan === 'free' ? (
+              <Link 
+                to={AppRoute.PLANS}
                 className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-sm hover:bg-brand-dark transition-all flex items-center justify-center group"
               >
                 <Zap className="h-4 w-4 mr-2 text-yellow-400 fill-yellow-400 group-hover:scale-110 transition-transform" /> 
                 UPGRADE AGORA
+              </Link>
+            ) : (
+              <button 
+                onClick={handlePortal}
+                disabled={loadingPortal}
+                className="w-full bg-slate-100 text-slate-600 py-5 rounded-2xl font-black text-sm hover:bg-white hover:border-slate-200 border border-transparent transition-all flex items-center justify-center"
+              >
+                {loadingPortal ? <Loader2 className="animate-spin h-4 w-4" /> : <><ExternalLink className="h-4 w-4 mr-2" /> GERENCIAR COBRANÇA</>}
               </button>
             )}
           </div>

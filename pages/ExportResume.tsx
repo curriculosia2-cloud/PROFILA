@@ -1,6 +1,8 @@
 
-import React from 'react';
-import { ResumeData, User } from '../types';
+// Fix: Use namespace import to correctly populate global JSX.IntrinsicElements
+import * as React from 'react';
+import { Link } from 'react-router-dom';
+import { ResumeData, User, AppRoute } from '../types';
 import { Download, Share2, CheckCircle, Crown, Info, Sparkles } from 'lucide-react';
 
 interface ExportResumeProps {
@@ -74,9 +76,12 @@ const ExportResume: React.FC<ExportResumeProps> = ({ resume, user }) => {
                     <p className="text-slate-400 text-sm font-medium">Remova a marca d'água e desbloqueie modelos VIP hoje.</p>
                 </div>
               </div>
-              <button className="whitespace-nowrap bg-white text-brand-dark px-10 py-4 rounded-xl font-black text-sm hover:bg-slate-100 transition-all">
+              <Link 
+                to={AppRoute.PLANS}
+                className="whitespace-nowrap bg-white text-brand-dark px-10 py-4 rounded-xl font-black text-sm hover:bg-slate-100 transition-all"
+              >
                 UPGRADE PREMIUM
-              </button>
+              </Link>
            </div>
         )}
       </div>

@@ -1,8 +1,9 @@
 
-import React from 'react';
+// Fix: Use namespace import to correctly populate global JSX.IntrinsicElements
+import * as React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { User, AppRoute } from '../types';
-import { TrendingUp, LogOut, User as UserIcon, Menu, X, Github, Linkedin, Twitter } from 'lucide-react';
+import { TrendingUp, LogOut, User as UserIcon, Menu, X, Mail } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -91,55 +92,45 @@ const Layout: React.FC<LayoutProps> = ({ children, user, onLogout }) => {
         {children}
       </main>
 
-      <footer className="bg-brand-dark text-slate-400 pt-20 pb-10">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-20">
-            <div className="md:col-span-5">
-               <div className="flex items-center space-x-3 mb-8">
-                  <div className="bg-brand-blue p-2 rounded-xl">
-                    <TrendingUp className="h-6 w-6 text-white" />
-                  </div>
-                  <span className="text-2xl font-black tracking-[0.15em] text-white">PROFILA</span>
+      <footer className="bg-brand-dark text-slate-400 pt-20 pb-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
+            {/* Coluna 1: Logo e Institucional */}
+            <div className="space-y-6">
+              <div className="flex items-center space-x-3">
+                <div className="bg-brand-blue p-2 rounded-xl">
+                  <TrendingUp className="h-5 w-5 text-white" />
                 </div>
-                <p className="max-w-sm text-lg leading-relaxed mb-8">
-                  A tecnologia que faltava para transformar sua carreira. Currículos inteligentes criados em segundos.
-                </p>
-                <div className="flex space-x-5">
-                  <a href="#" className="hover:text-brand-blue transition-colors"><Twitter size={20} /></a>
-                  <a href="#" className="hover:text-brand-blue transition-colors"><Linkedin size={20} /></a>
-                  <a href="#" className="hover:text-brand-blue transition-colors"><Github size={20} /></a>
-                </div>
+                <span className="text-xl font-black tracking-[0.15em] text-white">PROFILA</span>
+              </div>
+              <p className="text-base leading-relaxed max-w-xs opacity-80">
+                A tecnologia que faltava para transformar sua carreira. Currículos inteligentes criados em segundos.
+              </p>
             </div>
-            <div className="md:col-span-2">
-              <h4 className="text-white font-bold mb-6 text-sm uppercase tracking-widest">Plataforma</h4>
+
+            {/* Coluna 2: Links Rápidos */}
+            <div className="space-y-6 md:pl-12">
+              <h4 className="text-white font-bold text-sm uppercase tracking-widest">Plataforma</h4>
               <ul className="space-y-4 text-sm font-medium">
-                <li><Link to="/" className="hover:text-white transition-colors">Modelos IA</Link></li>
-                <li><Link to="/" className="hover:text-white transition-colors">Preços</Link></li>
-                <li><Link to="/" className="hover:text-white transition-colors">Segurança</Link></li>
+                <li><Link to={AppRoute.PLANS} className="hover:text-white transition-colors">Preços</Link></li>
+                <li><Link to={AppRoute.LANDING} className="hover:text-white transition-colors">Política de Privacidade</Link></li>
+                <li><Link to={AppRoute.LANDING} className="hover:text-white transition-colors">Termos de Uso</Link></li>
               </ul>
             </div>
-            <div className="md:col-span-2">
-              <h4 className="text-white font-bold mb-6 text-sm uppercase tracking-widest">Empresa</h4>
-              <ul className="space-y-4 text-sm font-medium">
-                <li><Link to="/" className="hover:text-white transition-colors">Sobre Nós</Link></li>
-                <li><Link to="/" className="hover:text-white transition-colors">Carreiras</Link></li>
-                <li><Link to="/" className="hover:text-white transition-colors">Blog</Link></li>
-              </ul>
-            </div>
-            <div className="md:col-span-3">
-              <h4 className="text-white font-bold mb-6 text-sm uppercase tracking-widest">Suporte</h4>
-              <ul className="space-y-4 text-sm font-medium">
-                <li><Link to="/" className="hover:text-white transition-colors">Central de Ajuda</Link></li>
-                <li><Link to="/" className="hover:text-white transition-colors">Privacidade</Link></li>
-                <li><Link to="/" className="hover:text-white transition-colors">Termos de Uso</Link></li>
-              </ul>
+
+            {/* Coluna 3: Contato */}
+            <div className="space-y-6">
+              <h4 className="text-white font-bold text-sm uppercase tracking-widest">Contato</h4>
+              <div className="flex items-center space-x-3 text-sm font-medium">
+                <Mail className="h-5 w-5 text-brand-blue" />
+                <a href="mailto:suporte@profila.com" className="hover:text-white transition-colors">suporte@profila.com</a>
+              </div>
             </div>
           </div>
-          <div className="pt-10 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center text-xs font-semibold tracking-wider">
-            <span>&copy; {new Date().getFullYear()} PROFILA AI. BUILT FOR PROFESSIONALS.</span>
-            <div className="flex space-x-8 mt-6 md:mt-0">
-              <span>MADE WITH ❤️ FOR THE FUTURE OF WORK</span>
-            </div>
+
+          <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
+            <span>© 2026 PROFILA. Todos os direitos reservados.</span>
+            <span className="mt-4 md:mt-0">Built with Excellence in Brazil</span>
           </div>
         </div>
       </footer>

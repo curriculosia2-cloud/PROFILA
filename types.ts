@@ -30,6 +30,9 @@ export interface ResumeData {
     email: string;
     city: string;
     photo?: string;
+    photoDataUrl?: string;
+    photoShape?: 'circle' | 'rounded' | 'square';
+    photoFit?: 'cover' | 'contain';
     summary?: string;
   };
   experiences: Experience[];
@@ -47,11 +50,20 @@ export interface ResumeData {
 }
 
 export type PlanType = 'free' | 'pro' | 'premium';
+export type SubscriptionStatus = 'active' | 'past_due' | 'canceled' | 'trialing' | 'inactive';
+
+export interface UserSubscription {
+  plan: PlanType;
+  status: SubscriptionStatus;
+  current_period_end?: string;
+  stripe_customer_id?: string;
+}
 
 export interface PlanDetails {
   id: PlanType;
   name: string;
   price: string;
+  priceId: string; // Stripe Price ID
   maxResumes: number;
   hasWatermark: boolean;
   templatesCount: number;
@@ -64,6 +76,7 @@ export const PLANS: Record<PlanType, PlanDetails> = {
     id: 'free',
     name: 'Gratuito',
     price: 'R$ 0',
+    priceId: '',
     maxResumes: 1,
     hasWatermark: true,
     templatesCount: 2,
@@ -73,7 +86,8 @@ export const PLANS: Record<PlanType, PlanDetails> = {
   pro: {
     id: 'pro',
     name: 'Pro',
-    price: 'R$ 29,90',
+    price: 'R$ 9,90',
+    priceId: 'price_PRO_PLACEHOLDER',
     maxResumes: 5,
     hasWatermark: false,
     templatesCount: 6,
@@ -83,7 +97,8 @@ export const PLANS: Record<PlanType, PlanDetails> = {
   premium: {
     id: 'premium',
     name: 'Premium',
-    price: 'R$ 49,90',
+    price: 'R$ 19,90',
+    priceId: 'price_PREMIUM_PLACEHOLDER',
     maxResumes: Infinity,
     hasWatermark: false,
     templatesCount: 12,
@@ -97,14 +112,21 @@ export interface User {
   name: string;
   email: string;
   plan: PlanType;
+  subscriptionStatus: SubscriptionStatus;
+  emailConfirmed?: boolean;
 }
 
 export enum AppRoute {
   LANDING = '/',
   LOGIN = '/login',
   REGISTER = '/register',
+  FORGOT_PASSWORD = '/forgot-password',
+  RESET_PASSWORD = '/reset-password',
+  VERIFY_EMAIL = '/verify-email',
   DASHBOARD = '/dashboard',
   CREATE = '/create',
   CUSTOMIZE = '/customize',
-  EXPORT = '/export'
+  EXPORT = '/export',
+  PLANS = '/planos',
+  BILLING_SUCCESS = '/billing/success'
 }
