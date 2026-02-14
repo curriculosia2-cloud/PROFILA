@@ -4,9 +4,10 @@ import * as React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppRoute, ResumeData, Experience, Education, User, PLANS } from '../types';
-import { ChevronRight, ChevronLeft, Plus, Trash2, Zap, Loader2, Sparkles, Camera, Image as ImageIcon } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Plus, Trash2, Zap, Loader2, Sparkles, Camera, Image as ImageIcon, AlertCircle } from 'lucide-react';
 import { polishResumeWithAI, improveDescriptionWithAI } from '../services/geminiService';
 import PhotoCropModal from '../components/PhotoCropModal';
+import { supabaseService } from '../services/supabase';
 
 interface CreateResumeProps {
   onSave: (resume: ResumeData) => void;
@@ -18,6 +19,7 @@ interface CreateResumeProps {
 const CreateResume: React.FC<CreateResumeProps> = ({ onSave, user, resumesCount, onOpenPlans }) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [ipLimitError, setIpLimitError] = useState(false);
   const [refiningId, setRefiningId] = useState<string | null>(null);
   const [tempImage, setTempImage] = useState<string | null>(null);
   const [showCropper, setShowCropper] = useState(false);
@@ -27,11 +29,21 @@ const CreateResume: React.FC<CreateResumeProps> = ({ onSave, user, resumesCount,
   const planDetails = PLANS[user.plan];
 
   useEffect(() => {
+    // Verificação de limite por quantidade de currículos na conta
     if (resumesCount >= planDetails.maxResumes) {
         onOpenPlans();
         navigate(AppRoute.DASHBOARD);
     }
-  }, [resumesCount, planDetails, navigate, onOpenPlans]);
+
+    // Verificação de limite por IP no plano free
+    const checkIp = async () => {
+      if (user.plan === 'free') {
+        const reached = await supabaseService.checkIpLimit();
+        if (reached) setIpLimitError(true);
+      }
+    };
+    checkIp();
+  }, [resumesCount, planDetails, navigate, onOpenPlans, user.plan]);
 
   const [formData, setFormData] = useState<ResumeData>({
     id: Math.random().toString(36).substr(2, 9),
@@ -63,8 +75,8 @@ const CreateResume: React.FC<CreateResumeProps> = ({ onSave, user, resumesCount,
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert("A imagem deve ter menos de 5MB.");
+    if (file.size > 8 * 1024 * 1024) {
+      alert("A imagem deve ter menos de 8MB.");
       return;
     }
 
@@ -79,7 +91,10 @@ const CreateResume: React.FC<CreateResumeProps> = ({ onSave, user, resumesCount,
   const handleCropComplete = (dataUrl: string) => {
     setFormData(prev => ({
       ...prev,
-      personalInfo: { ...prev.personalInfo, photoDataUrl: dataUrl }
+      personalInfo: { 
+        ...prev.personalInfo, 
+        photoDataUrl: dataUrl
+      }
     }));
     setShowCropper(false);
     setTempImage(null);
@@ -156,9 +171,21 @@ const CreateResume: React.FC<CreateResumeProps> = ({ onSave, user, resumesCount,
   const handleSubmit = async () => {
     setLoading(true);
     try {
+      // Polimento final com IA
       const enhancedResume = await polishResumeWithAI(formData);
-      onSave(enhancedResume);
-      navigate(AppRoute.CUSTOMIZE);
+      
+      // Tenta salvar e trata o erro de limite de IP
+      try {
+        await onSave(enhancedResume);
+        navigate(AppRoute.CUSTOMIZE);
+      } catch (saveErr: any) {
+        if (saveErr.message === "LIMITE_IP_ATINGIDO") {
+          setIpLimitError(true);
+          alert("Limite gratuito atingido para este endereço IP. Faça upgrade para continuar.");
+        } else {
+          throw saveErr;
+        }
+      }
     } catch (error) {
       onSave(formData);
       navigate(AppRoute.CUSTOMIZE);
@@ -166,6 +193,37 @@ const CreateResume: React.FC<CreateResumeProps> = ({ onSave, user, resumesCount,
       setLoading(false);
     }
   };
+
+  if (ipLimitError) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-32 text-center animate-in fade-in duration-500">
+        <div className="bg-white dark:bg-slate-900 p-16 rounded-[3.5rem] border border-slate-100 dark:border-slate-800 shadow-2xl">
+          <div className="bg-red-50 dark:bg-red-900/20 w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-8 text-red-500">
+            <AlertCircle size={48} />
+          </div>
+          <h2 className="text-4xl font-black text-brand-dark dark:text-white tracking-tighter mb-4">Limite Gratuito Atingido</h2>
+          <p className="text-lg text-slate-500 dark:text-slate-400 max-w-md mx-auto font-medium leading-relaxed mb-12">
+            Detectamos que este endereço IP já utilizou a cota de 1 currículo gratuito. 
+            Para criar currículos ilimitados e acessar modelos premium, escolha um dos nossos planos.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <button 
+              onClick={() => navigate(AppRoute.DASHBOARD)}
+              className="px-10 py-5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-200 transition-all"
+            >
+              VOLTAR AO PAINEL
+            </button>
+            <button 
+              onClick={onOpenPlans}
+              className="px-10 py-5 bg-gradient-brand text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-blue-500/20 hover:scale-105 transition-all flex items-center justify-center"
+            >
+              <Zap size={18} className="mr-2 fill-white" /> VER PLANOS PRO
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const renderStep = () => {
     switch (step) {
@@ -178,11 +236,15 @@ const CreateResume: React.FC<CreateResumeProps> = ({ onSave, user, resumesCount,
                 <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest text-center w-full">Foto Profissional</label>
                 <div 
                   onClick={() => fileInputRef.current?.click()}
-                  className="group relative w-40 h-40 bg-slate-50 dark:bg-slate-900 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[2.5rem] flex flex-col items-center justify-center cursor-pointer hover:border-brand-blue hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all overflow-hidden"
+                  className="group relative w-40 h-40 bg-slate-50 dark:bg-slate-950 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[2.5rem] flex items-center justify-center cursor-pointer hover:border-brand-blue hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all overflow-hidden shadow-inner"
                 >
                   {formData.personalInfo.photoDataUrl ? (
                     <>
-                      <img src={formData.personalInfo.photoDataUrl} alt="Preview" className="w-full h-full object-cover" />
+                      <img 
+                        src={formData.personalInfo.photoDataUrl} 
+                        alt="Preview" 
+                        className={`w-full h-full object-cover object-center block ${formData.personalInfo.photoShape === 'circle' ? 'rounded-full' : formData.personalInfo.photoShape === 'rounded' ? 'rounded-2xl' : ''}`} 
+                      />
                       <div className="absolute inset-0 bg-brand-dark/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <Camera className="text-white h-8 w-8" />
                       </div>
@@ -202,12 +264,20 @@ const CreateResume: React.FC<CreateResumeProps> = ({ onSave, user, resumesCount,
                   onChange={handleFileChange} 
                 />
                 {formData.personalInfo.photoDataUrl && (
-                  <button 
-                    onClick={() => updatePersonalInfo('photoDataUrl', '')}
-                    className="text-[10px] font-black text-red-500 uppercase tracking-widest hover:underline"
-                  >
-                    Remover Foto
-                  </button>
+                  <div className="flex gap-4">
+                    <button 
+                      onClick={() => setShowCropper(true)}
+                      className="text-[10px] font-black text-brand-blue uppercase tracking-widest hover:underline"
+                    >
+                      Ajustar Recorte
+                    </button>
+                    <button 
+                      onClick={() => updatePersonalInfo('photoDataUrl', '')}
+                      className="text-[10px] font-black text-red-500 uppercase tracking-widest hover:underline"
+                    >
+                      Remover
+                    </button>
+                  </div>
                 )}
               </div>
 
@@ -518,10 +588,14 @@ const CreateResume: React.FC<CreateResumeProps> = ({ onSave, user, resumesCount,
         <PhotoCropModal 
           imageSrc={tempImage}
           onCrop={handleCropComplete}
-          onClose={() => setShowCropper(false)}
+          onClose={() => {
+            setShowCropper(false);
+            setTempImage(null);
+          }}
           onRemove={() => {
             updatePersonalInfo('photoDataUrl', '');
             setShowCropper(false);
+            setTempImage(null);
           }}
           initialShape={formData.personalInfo.photoShape}
         />

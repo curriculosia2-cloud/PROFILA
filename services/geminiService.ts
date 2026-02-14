@@ -1,13 +1,14 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { ResumeData, Experience } from "../types";
-
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+import { ResumeData } from "../types";
 
 /**
  * Função principal para polir todo o currículo de uma vez.
+ * A instância do GoogleGenAI é criada dentro da função para garantir o uso da chave de ambiente atual.
  */
 export const polishResumeWithAI = async (data: ResumeData): Promise<ResumeData> => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
@@ -21,7 +22,7 @@ export const polishResumeWithAI = async (data: ResumeData): Promise<ResumeData> 
       REGRAS:
       1. Use linguagem corporativa formal e persuasiva.
       2. Foque em conquistas e verbos de ação.
-      3. A saída deve ser estritamente JSON.`,
+      3. A saída deve ser estritamente JSON, sem blocos de código ou markdown.`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -57,8 +58,12 @@ export const polishResumeWithAI = async (data: ResumeData): Promise<ResumeData> 
       }
     });
 
-    if (!response.text) throw new Error("Resposta vazia da IA");
-    const polishedData = JSON.parse(response.text);
+    const text = response.text;
+    if (!text) throw new Error("Resposta vazia da IA");
+    
+    // Limpeza de segurança caso a IA retorne markdown
+    const cleanJson = text.replace(/```json|```/g, "").trim();
+    const polishedData = JSON.parse(cleanJson);
     
     return {
       ...data,
@@ -76,34 +81,30 @@ export const polishResumeWithAI = async (data: ResumeData): Promise<ResumeData> 
 };
 
 /**
- * Chat de Suporte Inteligente (PROFILA Assistant)
+ * Chat de Suporte Inteligente (WorkGen Assistant)
  */
 export const chatWithAssistant = async (message: string, history: {role: string, parts: string}[]) => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: [
-        ...history.map(h => ({ role: h.role, parts: [{ text: h.parts }] })),
+        ...history.map(h => ({ role: h.role === 'user' ? 'user' : 'model', parts: [{ text: h.parts }] })),
         { role: 'user', parts: [{ text: message }] }
       ],
       config: {
-        systemInstruction: `Você é a "Aya", a assistente virtual e coach de carreira do PROFILA.
+        systemInstruction: `Você é a "Aya", a assistente virtual e coach de carreira do WorkGen.
         Sua missão é ajudar os usuários a criarem currículos de elite e navegarem na plataforma.
 
         ESTRUTURA DE RESPOSTA (OBRIGATÓRIO):
         - Seja concisa. Use no máximo 3 parágrafos curtos por resposta.
         - Use **negrito** para destacar palavras-chave importantes.
         - Use listas com marcadores (•) para sugestões ou passos.
-        - Se for uma dica de currículo, explique o "porquê" brevemente.
-
-        CONHECIMENTO DO PROFILA:
-        - Planos: Free (1 currículo, marca d'água), Pro (5 currículos, templates modernos), Premium (Ilimitado, IA Avançada).
-        - Funcionalidades: IA de polimento automático, Editor em tempo real, Exportação PDF HD.
         
         DIRETRIZES DE PERSONA:
-        - Tom: Profissional, motivador e expert em recrutamento.
-        - Nunca peça dados sensíveis ou API Keys.
-        - Se o usuário perguntar algo fora de carreira/currículo, gentilmente traga o assunto de volta para o PROFILA.`,
+        - Tom: Profissional e motivador.
+        - Nunca peça dados sensíveis.`,
       }
     });
 
@@ -114,8 +115,13 @@ export const chatWithAssistant = async (message: string, history: {role: string,
   }
 };
 
+/**
+ * Melhora descrições individuais de experiências.
+ */
 export const improveDescriptionWithAI = async (role: string, description: string, level: string): Promise<string> => {
   if (!description || description.trim().length < 5) return description;
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',

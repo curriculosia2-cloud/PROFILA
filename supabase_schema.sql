@@ -24,6 +24,7 @@ create table public.resumes (
   user_id uuid references auth.users(id) on delete cascade,
   title text,
   content jsonb not null,
+  ip_address text, -- Armazenamento do IP para controle de fraude e limites
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );

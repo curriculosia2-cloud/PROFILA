@@ -1,6 +1,6 @@
 {
-  "name": "PROFILA - AI Resume Builder",
-  "description": "A modern SaaS platform for creating professional resumes using artificial intelligence to rewrite and polish your career history.",
+  "name": "WorkGen - AI Resume Intelligence",
+  "description": "Seu currículo pronto em minutos com IA. A plataforma SaaS definitiva para profissionais de elite.",
   "requestFramePermissions": [
     "camera"
   ]

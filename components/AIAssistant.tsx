@@ -15,7 +15,7 @@ const AIAssistant: React.FC = () => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<{role: 'user' | 'model', text: string}[]>([
-    { role: 'model', text: 'Olá! Sou a **Aya**, sua assistente PROFILA. Estou pronta para transformar seu currículo hoje. O que você gostaria de saber? ✨' }
+    { role: 'model', text: 'Olá! Sou a **Aya**, sua assistente WorkGen. Estou pronta para transformar seu currículo hoje. O que você gostaria de saber? ✨\n\nCaso precise de suporte técnico, você também pode nos contatar em: **workgen@profila.site**' }
   ]);
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
