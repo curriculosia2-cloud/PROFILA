@@ -6,12 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WorkGen | Seu currículo pronto em minutos com IA</title>
     
-    <!-- Script para silenciar o aviso do Tailwind Play CDN no console -->
     <script>
       (function() {
         const originalWarn = console.warn;
         console.warn = function(...args) {
-          // Filtra o aviso específico do CDN do Tailwind para não poluir o console do usuário
           if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) {
             return;
           }
@@ -23,12 +21,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M25 15C25 12.2386 27.2386 10 30 10H65L85 30V85C85 87.7614 82.7614 90 80 90H30C27.2386 90 25 87.7614 25 85V15Z' fill='url(%23grad)'/%3E%3Cpath d='M45 35L65 50L40 60L60 75' stroke='%2300FFA3' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='60' cy='75' r='5' fill='%2300FFA3'/%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0' y1='0' x2='100' y2='100' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%232563EB'/%3E%3Cstop offset='1' stop-color='%237C3AED'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E">
+    
     <script>
       const theme = localStorage.getItem('workgen-theme');
       if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
       }
 
       tailwind.config = {
@@ -47,64 +44,34 @@
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
               display: ['Poppins', 'sans-serif'],
-            },
-            backgroundImage: {
-              'gradient-brand': 'linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)',
             }
           }
         }
       }
     </script>
+
     <style>
-      body {
-        font-family: 'Inter', sans-serif;
-        transition: background-color 0.4s ease, color 0.4s ease;
-      }
-      h1, h2, h3, h4, .font-display {
-        font-family: 'Poppins', sans-serif;
-      }
-      .dark body {
-        background-color: #0B0F1A;
-        color: #F8FAFC;
-        background-image: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.05) 0%, transparent 50%);
-      }
-      .glass {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-      }
-      .dark .glass {
-        background: rgba(11, 15, 26, 0.8);
-        border-color: rgba(255, 255, 255, 0.05);
-      }
-      .btn-glow:hover {
-        box-shadow: 0 0 20px rgba(37, 99, 235, 0.4);
-      }
-      .logo-text {
-        letter-spacing: -0.02em;
-      }
-      ::-webkit-scrollbar {
-        width: 6px;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #2563EB;
-        border-radius: 10px;
-      }
+      body { font-family: 'Inter', sans-serif; transition: background-color 0.4s ease; }
+      .dark body { background-color: #0B0F1A; color: #F8FAFC; }
+      .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
     </style>
-  <script type="importmap">
+
+    <script type="importmap">
 {
   "imports": {
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "react-router-dom": "https://esm.sh/react-router-dom@7.1.1?external=react,react-dom",
+    "lucide-react": "https://esm.sh/lucide-react@0.463.0?external=react",
+    "@google/genai": "https://esm.sh/@google/genai@1.3.0",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.46.1",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "react": "https://esm.sh/react@^19.2.4",
-    "@google/genai": "https://esm.sh/@google/genai@^1.41.0",
-    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
-    "react-router-dom": "https://esm.sh/react-router-dom@^7.13.0",
-    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2"
+    "react/": "https://esm.sh/react@^19.2.4/"
   }
 }
 </script>
-</head>
+  </head>
   <body class="bg-brand-light dark:bg-brand-dark text-slate-900 dark:text-slate-100 min-h-screen">
     <div id="root"></div>
   </body>
