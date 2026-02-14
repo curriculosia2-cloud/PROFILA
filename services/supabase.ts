@@ -1,27 +1,59 @@
 
 import { createClient } from '@supabase/supabase-js';
-import { ResumeData, User } from '../types';
+import { ResumeData } from '../types';
 
-const SUPABASE_URL = 'https://rglluccyiptoyvskjrvj.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_kJL-fSkf_5hwPCSRZL2GNQ_wotHWoGO';
+// Detect environment variables or use hardcoded fallbacks
+const SUPABASE_URL = (process.env.SUPABASE_URL || 'https://rglluccyiptoyvskjrvj.supabase.co').trim();
+const SUPABASE_ANON_KEY = (process.env.SUPABASE_ANON_KEY || 'sb_publishable_kJL-fSkf_5hwPCSRZL2GNQ_wotHWoGO').trim();
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Runtime validation
+export const isConfigured = 
+  SUPABASE_URL && 
+  SUPABASE_ANON_KEY && 
+  !SUPABASE_URL.includes('your-project') &&
+  !SUPABASE_ANON_KEY.includes('your-anon-key');
 
-// Função auxiliar para capturar o IP do usuário (usando serviço público)
+if (!isConfigured) {
+  console.error("ENV_CHECK_FAILED: Supabase credentials are missing or placeholder.");
+}
+
+// Only initialize if configured to prevent early crashes
+export const supabase = isConfigured 
+  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null as any;
+
+/**
+ * Perform a connectivity check to the Supabase endpoint
+ */
+export async function checkSupabaseConnectivity(): Promise<boolean> {
+  if (!isConfigured) return false;
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/`, { 
+      method: 'HEAD',
+      headers: { 'apikey': SUPABASE_ANON_KEY }
+    });
+    console.info("NETWORK_SELF_TEST", { status: response.status, ok: response.ok });
+    return response.ok;
+  } catch (error) {
+    console.error("NETWORK_SELF_TEST_FAILED", error);
+    return false;
+  }
+}
+
 async function getUserIp(): Promise<string> {
   try {
     const response = await fetch('https://api.ipify.org?format=json');
     const data = await response.json();
     return data.ip || 'unknown';
   } catch (error) {
-    console.error('Erro ao detectar IP:', error);
+    console.error('IP_DETECTION_FAILED', error);
     return 'unknown';
   }
 }
 
 export const supabaseService = {
-  // --- RESUMES ---
   async getResumes() {
+    if (!supabase) return [];
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return [];
 
@@ -32,7 +64,7 @@ export const supabaseService = {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Erro ao buscar currículos:', error);
+      console.error('DB_FETCH_FAILED', error);
       return [];
     }
 
@@ -44,31 +76,31 @@ export const supabaseService = {
   },
 
   async checkIpLimit() {
+    if (!supabase) return false;
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return false;
 
-    // Busca o plano do usuário
     const profile = await this.getProfile(user.id);
-    if (profile?.plan !== 'free') return false; // Planos pagos não têm limite de IP
+    if (profile?.plan !== 'free') return false;
 
     const ip = await getUserIp();
     if (ip === 'unknown') return false;
 
-    // Conta currículos criados com este IP (apenas para usuários no plano free)
     const { count, error } = await supabase
       .from('resumes')
       .select('*', { count: 'exact', head: true })
       .eq('ip_address', ip);
 
     if (error) {
-      console.error('Erro ao verificar limite de IP:', error);
+      console.error('DB_IP_CHECK_FAILED', error);
       return false;
     }
 
-    return (count || 0) >= 1; // Limite de 1 currículo por IP no plano grátis
+    return (count || 0) >= 1;
   },
 
   async saveResume(resume: ResumeData) {
+    if (!supabase) return null;
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return null;
 
@@ -83,7 +115,7 @@ export const supabaseService = {
       updated_at: new Date().toISOString()
     };
 
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
     if (isUuid) {
       const { data, error } = await supabase
@@ -96,11 +128,8 @@ export const supabaseService = {
       if (error) throw error;
       return data;
     } else {
-      // Antes de inserir, verifica o limite de IP para currículos novos
       const limitReached = await this.checkIpLimit();
-      if (limitReached) {
-        throw new Error("LIMITE_IP_ATINGIDO");
-      }
+      if (limitReached) throw new Error("LIMITE_IP_ATINGIDO");
 
       const { data, error } = await supabase
         .from('resumes')
@@ -114,6 +143,7 @@ export const supabaseService = {
   },
 
   async deleteResume(id: string) {
+    if (!supabase) return;
     const { error } = await supabase
       .from('resumes')
       .delete()
@@ -122,8 +152,8 @@ export const supabaseService = {
     if (error) throw error;
   },
 
-  // --- PROFILE ---
   async getProfile(userId: string) {
+    if (!supabase) return null;
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -135,6 +165,7 @@ export const supabaseService = {
   },
 
   async updateProfile(userId: string, updates: any) {
+    if (!supabase) return;
     const { error } = await supabase
       .from('profiles')
       .update(updates)
